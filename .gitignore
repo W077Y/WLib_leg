@@ -1,6 +1,7 @@
 #Folders
 /out
 /.vs
+/build
 
 CMakePresets.json
 # Prerequisites
