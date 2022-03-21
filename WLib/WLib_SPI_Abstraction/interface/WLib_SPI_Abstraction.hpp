@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SPI_ABS_HPP
-#define SPI_ABS_HPP
+#ifndef WLIB_SPI_ABSTRACTION_HPP
+#define WLIB_SPI_ABSTRACTION_HPP
 
 #include <WLib_Utility.hpp>
 #include <cstddef>
@@ -8,59 +8,10 @@
 
 namespace WLib::SPI
 {
-  class ChipSelect_Interface
-  {
-  public:
-    virtual void select()   = 0;
-    virtual void deselect() = 0;
-  };
-
   class Connection_Interface
   {
   public:
     virtual void transceive(std::byte const* tx, std::byte* rx, std::size_t len) = 0;
-  };
-
-  class Device_Configuration
-  {
-  public:
-    enum class Mode
-    {
-      Mode_0,
-      Mode_1,
-      Mode_2,
-      Mode_3,
-      CPOL_0_CPHA_0 = Mode_0,
-      CPOL_0_CPHA_1 = Mode_1,
-      CPOL_1_CPHA_0 = Mode_2,
-      CPOL_1_CPHA_1 = Mode_3,
-    };
-
-    enum class Bit_Order
-    {
-      MSB_first,
-      LSB_first,
-    };
-
-    constexpr Device_Configuration(uint32_t const& max_bautrate, Mode const& spi_mode)
-        : m_max_bautrate(max_bautrate)
-        , m_spi_mode(spi_mode){};
-
-    constexpr Device_Configuration(uint32_t const&  max_bautrate,
-                                       Mode const&      spi_mode,
-                                       Bit_Order const& bit_order)
-        : m_max_bautrate(max_bautrate)
-        , m_spi_mode(spi_mode)
-        , m_bit_order(bit_order){};
-
-    constexpr uint32_t  get_max_bautrate() const { return this->m_max_bautrate; }
-    constexpr Mode      get_spi_mode() const { return this->m_spi_mode; }
-    constexpr Bit_Order get_bit_order() const { return this->m_bit_order; }
-
-  private:
-    uint32_t  m_max_bautrate = 0;
-    Mode      m_spi_mode     = Mode::Mode_0;
-    Bit_Order m_bit_order    = Bit_Order::MSB_first;
   };
 
   class HW_Interface
@@ -68,11 +19,58 @@ namespace WLib::SPI
       , private Utility::non_copyable_non_moveable_t
   {
   public:
-    using device_cfg_t = Device_Configuration;
+    class Configuration
+    {
+    public:
+      enum class Mode
+      {
+        Mode_0,
+        Mode_1,
+        Mode_2,
+        Mode_3,
+        CPOL_0_CPHA_0 = Mode_0,
+        CPOL_0_CPHA_1 = Mode_1,
+        CPOL_1_CPHA_0 = Mode_2,
+        CPOL_1_CPHA_1 = Mode_3,
+      };
 
-    virtual void     enable(device_cfg_t const& cfg) = 0;
-    virtual uint32_t get_actual_bautrate() const     = 0;
-    virtual void     disable()                       = 0;
+      enum class Bit_Order
+      {
+        MSB_first,
+        LSB_first,
+      };
+
+      constexpr Configuration(uint32_t const& max_bautrate, Mode const& spi_mode)
+          : m_max_bautrate(max_bautrate)
+          , m_spi_mode(spi_mode){};
+
+      constexpr Configuration(uint32_t const&  max_bautrate,
+                              Mode const&      spi_mode,
+                              Bit_Order const& bit_order)
+          : m_max_bautrate(max_bautrate)
+          , m_spi_mode(spi_mode)
+          , m_bit_order(bit_order){};
+
+      constexpr uint32_t  get_max_bautrate() const { return this->m_max_bautrate; }
+      constexpr Mode      get_spi_mode() const { return this->m_spi_mode; }
+      constexpr Bit_Order get_bit_order() const { return this->m_bit_order; }
+
+    private:
+      uint32_t  m_max_bautrate = 0;
+      Mode      m_spi_mode     = Mode::Mode_0;
+      Bit_Order m_bit_order    = Bit_Order::MSB_first;
+    };
+
+    virtual void     enable(Configuration const& cfg) = 0;
+    virtual uint32_t get_actual_bautrate() const      = 0;
+    virtual void     disable()                        = 0;
+  };
+
+  class ChipSelect_Interface
+  {
+  public:
+    virtual void select()   = 0;
+    virtual void deselect() = 0;
   };
 
   namespace Internal
@@ -106,9 +104,9 @@ namespace WLib::SPI
     };
   }    // namespace Internal
 
-  class Device_Interface: private Utility::non_copyable_non_moveable_t
+  class Channel_Provider_Interface: private Utility::non_copyable_non_moveable_t
   {
-    class Session_Handle final: private Utility::non_copyable_non_moveable_t
+    class Channel_Handle final: private Utility::non_copyable_non_moveable_t
     {
       class Connection_Handle final
           : public Connection_Interface
@@ -136,16 +134,16 @@ namespace WLib::SPI
     public:
       using connection_handle_t = Connection_Handle;
 
-      Session_Handle(ChipSelect_Interface&             chip_sel,
-                     HW_Interface&                     spi,
-                     HW_Interface::device_cfg_t const& cfg)
+      Channel_Handle(ChipSelect_Interface&              chip_sel,
+                     HW_Interface&                      spi,
+                     HW_Interface::Configuration const& cfg)
           : m_chip_select(chip_sel)
           , m_spi_hw(spi)
       {
         this->m_spi_hw.enable(cfg);
       }
 
-      ~Session_Handle() { this->m_spi_hw.disable(); }
+      ~Channel_Handle() { this->m_spi_hw.disable(); }
 
       connection_handle_t select_chip() &
       {
@@ -160,31 +158,31 @@ namespace WLib::SPI
     };
 
   public:
-    using session_handle_t = Session_Handle;
+    using channel_handle_t = Channel_Handle;
 
-    virtual session_handle_t get_session(Device_Configuration const&) & = 0;
+    virtual channel_handle_t request_channel(HW_Interface::Configuration const&) & = 0;
+
   private:
   };
 
-  class Device final: public Device_Interface
+  class Channel_Provider final: public Channel_Provider_Interface
   {
   public:
-    Device(ChipSelect_Interface& chip_sel, HW_Interface& spi)
+    Channel_Provider(ChipSelect_Interface& chip_sel, HW_Interface& spi)
         : m_chip_select(chip_sel)
         , m_spi_hw(spi)
     {
     }
 
-    session_handle_t get_session(Device_Configuration const & cfg) & override
+    channel_handle_t request_channel(HW_Interface::Configuration const& cfg) & override
     {
-      return session_handle_t(this->m_chip_select, this->m_spi_hw, cfg);
+      return channel_handle_t(this->m_chip_select, this->m_spi_hw, cfg);
     }
 
   private:
-    ChipSelect_Interface&      m_chip_select;
-    HW_Interface&              m_spi_hw;
+    ChipSelect_Interface& m_chip_select;
+    HW_Interface&         m_spi_hw;
   };
-
 }    // namespace WLib::SPI
 
 #endif

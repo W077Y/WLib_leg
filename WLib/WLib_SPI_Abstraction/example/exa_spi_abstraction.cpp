@@ -14,7 +14,7 @@ private:
   {
   }
 
-  void enable(device_cfg_t const& cfg) override
+  void enable(Configuration const& cfg) override
   {
   };
 
@@ -37,23 +37,23 @@ WLib::SPI::HW_Interface& get_spi_1()
   return obj;
 }
 
-WLib::SPI::Device_Interface& get_eeprom_1()
+WLib::SPI::Channel_Provider_Interface& get_eeprom_1()
 {
-  static WLib::SPI::Device obj{ get_chip_select_PA3(), get_spi_1() };
+  static WLib::SPI::Channel_Provider obj{ get_chip_select_PA3(), get_spi_1() };
   return obj;
 }
 
 
 int main()
 {
-  constexpr WLib::SPI::Device_Configuration cfg{ 123'000'000,
-                                                 WLib::SPI::Device_Configuration::Mode::Mode_3 };
+  constexpr WLib::SPI::HW_Interface::Configuration cfg{ 123'000'000,
+                                                 WLib::SPI::HW_Interface::Configuration::Mode::Mode_3 };
 
 
-  WLib::SPI::Device_Interface& eeprom_1 = get_eeprom_1();
+  WLib::SPI::Channel_Provider_Interface& eeprom_1 = get_eeprom_1();
 
   {
-    auto&& ses = eeprom_1.get_session(cfg);
+    auto&& ses = eeprom_1.request_channel(cfg);
     ses.select_chip().transceive(nullptr, nullptr, 10);
     auto&& chip = ses.select_chip();
     chip.transceive(nullptr, nullptr, 20);
