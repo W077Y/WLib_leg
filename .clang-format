@@ -1,0 +1,96 @@
+---
+# We'll use defaults from the LLVM style, but with 4 columns indentation.
+BasedOnStyle: LLVM
+---
+Language: Cpp
+
+
+
+#UseTab: never
+UseCRLF: true
+TabWidth: 2
+
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+
+AlignAfterOpenBracket: Align
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+
+BinPackParameters: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  #BeforeLambdaBody: true
+  #BeforeWhile : true
+  IndentBraces: true
+  SplitEmptyFunction: true
+  SplitEmptyRecord : true
+  SplitEmptyNamespace : true
+
+#BinaryOperatorStyle: None
+
+BreakBeforeBraces: Allman
+
+BreakBeforeTernaryOperators: false
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+BreakStringLiterals: true
+
+
+CompactNamespaces : false
+ConstructorInitializerAllOnOneLineOrOnePerLine : false
+
+ConstructorInitializerIndentWidth : 4
+ContinuationIndentWidth : 4
+Cpp11BracedListStyle : false
+
+DeriveLineEnding : false
+DerivePointerAlignment : false
+FixNamespaceComments : true
+
+IncludeBlocks : Regroup
+
+
+IndentCaseBlocks : true
+
+IndentPPDirectives : None
+
+IndentWrappedFunctionNames : false
+
+#InsertTrailingCommas : Wrapped
+
+NamespaceIndentation : All
+
+PointerAlignment: Left
+
+SortIncludes : true
+
+#SpaceAroundPointerQualifiers : Before
+SpaceBeforeAssignmentOperators : true
+SpaceBeforeCpp11BracedList : false
+SpaceBeforeCtorInitializerColon : false
+SpaceBeforeInheritanceColon : false
+
+SpaceBeforeParens : ControlStatements
+SpaceBeforeRangeBasedForLoopColon : true
+SpaceBeforeSquareBrackets : false
+SpaceInEmptyBlock : false
+
+SpacesBeforeTrailingComments : 4
+SpacesInAngles : false
+
+ColumnLimit: 100
+IndentWidth : 2
+
+Standard : c++17
