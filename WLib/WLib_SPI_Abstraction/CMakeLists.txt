@@ -1,6 +1,8 @@
 ﻿cmake_minimum_required (VERSION 3.15)
 
-MESSAGE_TREEVIEW("WLib-SPI-Abstraction")
+IF(DEFINED sub_dir_tree_val)
+	MESSAGE_TREEVIEW("WLib-SPI-Abstraction")
+ENDIF()
 
 add_library(WLib_SPI_Abstraction STATIC)
 
@@ -20,5 +22,3 @@ target_compile_features(WLib_SPI_Abstraction PUBLIC cxx_std_17)
 
 target_link_libraries(WLib_SPI_Abstraction PUBLIC WLib_Utility)
 
-add_subdirectory("./test")
-add_subdirectory("./example")

@@ -1,10 +1,10 @@
 ﻿cmake_minimum_required (VERSION 3.15)
 
 IF(DEFINED sub_dir_tree_val)
-	MESSAGE_TREEVIEW("WLib-Librarys")
+	MESSAGE_TREEVIEW("WLib-Tests")
 ENDIF()
 
-
+add_subdirectory("./externals")
 add_subdirectory(WLib_Utility)
 add_subdirectory(WLib_CRC)
 add_subdirectory(WLib_Serializer)

@@ -19,6 +19,4 @@ target_sources(WLib_Serializer
 )
 
 
-
- add_subdirectory("./test")
- add_subdirectory("./example")
+target_compile_features(WLib_Serializer PUBLIC cxx_std_17)

@@ -30,5 +30,4 @@ target_sources(WLib_CRC
 	PRIVATE	"${CMAKE_CURRENT_LIST_DIR}/implementation/crc_64_go_iso.cpp"
 )
 
- add_subdirectory("./test")
- add_subdirectory("./example")
+target_compile_features(WLib_CRC PUBLIC cxx_std_17)

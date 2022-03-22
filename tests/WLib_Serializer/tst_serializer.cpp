@@ -218,11 +218,19 @@ TEST_CASE()
 
 namespace
 {
-  struct tst_struct
+  class tst_struct
   {
-    // private:
-    // template <typename T> friend void WLib::serializer_traits<tst_struct>::ser;
+  public:
+    void set_a(char val) { this->a = val; };
+    void set_b(int val) { this->b = val; };
+    void set_c(char val) { this->c = val; };
 
+    char get_a() const { return this->a; };
+    int  get_b() const { return this->b; };
+    char get_c() const { return this->c; };
+
+  private:
+    friend WLib::serializer_traits<tst_struct>;
     char a = 0;
     int  b = 0;
     char c = 0;
@@ -262,9 +270,9 @@ TEST_CASE()
 {
   std::byte  tmp[100];
   tst_struct in;
-  in.a = static_cast<char>(0xAA);
-  in.b = 0xBB;
-  in.c = static_cast<char>(0xCC);
+  in.set_a(static_cast<char>(0xAA));
+  in.set_b(0xBB);
+  in.set_c(static_cast<char>(0xCC));
 
   WLib::byte_sink_ptr cur(tmp);
   WLib::serialize(cur, in);
@@ -272,17 +280,17 @@ TEST_CASE()
   WLib::byte_source_ptr pos(tmp);
   auto&&                out = WLib::deserialize<tst_struct>(pos);
 
-  REQUIRE(in.a == out.a);
-  REQUIRE(in.b == out.b);
-  REQUIRE(in.c == out.c);
+  REQUIRE(in.get_a() == out.get_a());
+  REQUIRE(in.get_b() == out.get_b());
+  REQUIRE(in.get_c() == out.get_c());
 }
 
 TEST_CASE()
 {
   tst_struct in;
-  in.a = static_cast<char>(0xAA);
-  in.b = 0xBB;
-  in.c = static_cast<char>(0xCC);
+  in.set_a(static_cast<char>(0xAA));
+  in.set_b(0xBB);
+  in.set_c(static_cast<char>(0xCC));
 
   std::byte                  tmp[100];
   WLib::byte_sink_ext_buffer cur(tmp);
@@ -315,7 +323,7 @@ TEST_CASE()
 
   REQUIRE(WLib::deserialize<uint64_t>(pos) == static_cast<uint64_t>(0x0123'4567'89AB'CDEF));
 
-  REQUIRE(in.a == out.a);
-  REQUIRE(in.b == out.b);
-  REQUIRE(in.c == out.c);
+  REQUIRE(in.get_a() == out.get_a());
+  REQUIRE(in.get_b() == out.get_b());
+  REQUIRE(in.get_c() == out.get_c());
 }

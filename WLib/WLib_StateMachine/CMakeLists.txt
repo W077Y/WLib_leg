@@ -17,7 +17,6 @@ target_sources(WLib_StateMachine
 	PRIVATE "${CMAKE_CURRENT_LIST_DIR}/implementation/WLib_StateMachine.cpp"
 )
 
+target_compile_features(WLib_StateMachine PUBLIC cxx_std_17)
 
 
-add_subdirectory("./test")
-add_subdirectory("./example")

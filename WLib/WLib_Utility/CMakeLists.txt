@@ -20,5 +20,4 @@ target_sources(WLib_Utility
 )
 
 
-add_subdirectory("./test")
-add_subdirectory("./example")
+target_compile_features(WLib_Utility PUBLIC cxx_std_17)
