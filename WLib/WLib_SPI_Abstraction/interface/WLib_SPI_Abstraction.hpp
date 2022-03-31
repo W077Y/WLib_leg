@@ -5,9 +5,15 @@
 #include <WLib_Utility.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <execution>
 
 namespace WLib::SPI
 {
+  class Connection_Interface;
+  class HW_Interface;
+  class ChipSelect_Interface;
+  class Channel_Provider;
+
   class Connection_Interface
   {
   public:
@@ -19,15 +25,16 @@ namespace WLib::SPI
       , private Utility::non_copyable_non_moveable_t
   {
   public:
+    static HW_Interface& get_null_hw();
     class Configuration
     {
     public:
       enum class Mode
       {
-        Mode_0,
-        Mode_1,
-        Mode_2,
-        Mode_3,
+        Mode_0        = 0,
+        Mode_1        = 1,
+        Mode_2        = 2,
+        Mode_3        = 3,
         CPOL_0_CPHA_0 = Mode_0,
         CPOL_0_CPHA_1 = Mode_1,
         CPOL_1_CPHA_0 = Mode_2,
@@ -36,8 +43,8 @@ namespace WLib::SPI
 
       enum class Bit_Order
       {
-        MSB_first,
-        LSB_first,
+        MSB_first = 0,
+        LSB_first = 1,
       };
 
       constexpr Configuration(uint32_t const& max_bautrate, Mode const& spi_mode)
@@ -69,42 +76,50 @@ namespace WLib::SPI
   class ChipSelect_Interface
   {
   public:
-    virtual void select()   = 0;
-    virtual void deselect() = 0;
+    static ChipSelect_Interface& get_null_chip_select();
+    virtual void                 select()   = 0;
+    virtual void                 deselect() = 0;
   };
 
   namespace Internal
   {
-    class recursive_chip_select_wrapper_t final
+    class unique_chip_select_wrapper_t final
         : public ChipSelect_Interface
         , private Utility::non_copyable_non_moveable_t
     {
     public:
-      recursive_chip_select_wrapper_t(ChipSelect_Interface& chip_select)
+      unique_chip_select_wrapper_t(ChipSelect_Interface& chip_select)
           : m_chip_select(chip_select)
       {
       }
 
-      ~recursive_chip_select_wrapper_t() = default;
+      ~unique_chip_select_wrapper_t() = default;
 
       void select() override
       {
-        if (this->m_sel_count++ == 0)
-          this->m_chip_select.select();
+        if (this->m_sel_count != 0)
+          mutible_selection_error_handler();
+
+        ++this->m_sel_count;
+        this->m_chip_select.select();
       };
       void deselect() override
       {
-        if (--this->m_sel_count == 0)
-          this->m_chip_select.deselect();
+        --this->m_sel_count;
+        this->m_chip_select.deselect();
       };
 
+      ChipSelect_Interface& get_native_handle() { return this->m_chip_select; }
+
     private:
+      void mutible_selection_error_handler();
+
       ChipSelect_Interface& m_chip_select;
       uint32_t              m_sel_count = 0;
     };
   }    // namespace Internal
 
-  class Channel_Provider_Interface: private Utility::non_copyable_non_moveable_t
+  class Channel_Provider: private Utility::non_copyable_non_moveable_t
   {
     class Channel_Handle final: private Utility::non_copyable_non_moveable_t
     {
@@ -113,9 +128,9 @@ namespace WLib::SPI
           , private Utility::non_copyable_non_moveable_t
       {
       public:
-        Connection_Handle(ChipSelect_Interface& chip_sel, Connection_Interface& spi_hw)
-            : m_chip_sel(chip_sel)
-            , m_spi(spi_hw)
+        Connection_Handle(Channel_Handle& channel)
+            : m_chip_sel(channel.m_chip_select)
+            , m_spi(*channel.m_spi_hw)
         {
           this->m_chip_sel.select();
         }
@@ -131,42 +146,57 @@ namespace WLib::SPI
         Connection_Interface& m_spi;
       };
 
-    public:
-      using connection_handle_t = Connection_Handle;
+      class Connection_Handle_HW final
+          : public Connection_Interface
+          , private Utility::non_copyable_non_moveable_t
+      {
+      public:
+        Connection_Handle_HW(Channel_Handle&& channel)
+            : m_chip_sel(channel.m_chip_select.get_native_handle())
+            , m_spi(*channel.m_spi_hw)
+        {
+          channel.m_chip_select.select();
+          channel.m_spi_hw = &HW_Interface::get_null_hw();
+        }
+        ~Connection_Handle_HW()
+        {
+          this->m_chip_sel.deselect();
+          this->m_spi.disable();
+        }
 
+        void transceive(std::byte const* tx, std::byte* rx, std::size_t len) override
+        {
+          return this->m_spi.transceive(tx, rx, len);
+        }
+
+      private:
+        ChipSelect_Interface& m_chip_sel;
+        HW_Interface&         m_spi;
+      };
+
+    public:
       Channel_Handle(ChipSelect_Interface&              chip_sel,
                      HW_Interface&                      spi,
                      HW_Interface::Configuration const& cfg)
           : m_chip_select(chip_sel)
-          , m_spi_hw(spi)
+          , m_spi_hw(&spi)
       {
-        this->m_spi_hw.enable(cfg);
+        this->m_spi_hw->enable(cfg);
       }
 
-      ~Channel_Handle() { this->m_spi_hw.disable(); }
+      ~Channel_Handle() { this->m_spi_hw->disable(); }
 
-      connection_handle_t select_chip() &
-      {
-        return connection_handle_t(this->m_chip_select, this->m_spi_hw);
-      }
+      Connection_Handle select_chip() & { return Connection_Handle(*this); }
 
-      uint32_t get_actual_bautrate() const { return this->m_spi_hw.get_actual_bautrate(); }
+      Connection_Handle_HW select_chip() && { return Connection_Handle_HW(std::move(*this)); }
+
+      uint32_t get_actual_bautrate() const { return this->m_spi_hw->get_actual_bautrate(); }
 
     private:
-      Internal::recursive_chip_select_wrapper_t m_chip_select;
-      HW_Interface&                             m_spi_hw;
+      Internal::unique_chip_select_wrapper_t m_chip_select;
+      HW_Interface*                          m_spi_hw;
     };
 
-  public:
-    using channel_handle_t = Channel_Handle;
-
-    virtual channel_handle_t request_channel(HW_Interface::Configuration const&) & = 0;
-
-  private:
-  };
-
-  class Channel_Provider final: public Channel_Provider_Interface
-  {
   public:
     Channel_Provider(ChipSelect_Interface& chip_sel, HW_Interface& spi)
         : m_chip_select(chip_sel)
@@ -174,9 +204,9 @@ namespace WLib::SPI
     {
     }
 
-    channel_handle_t request_channel(HW_Interface::Configuration const& cfg) & override
+    Channel_Handle request_channel(HW_Interface::Configuration const& cfg)
     {
-      return channel_handle_t(this->m_chip_select, this->m_spi_hw, cfg);
+      return Channel_Handle(this->m_chip_select, this->m_spi_hw, cfg);
     }
 
   private:

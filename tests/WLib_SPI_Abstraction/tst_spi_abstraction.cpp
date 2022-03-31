@@ -5,22 +5,22 @@
 class bool_chip_select final: public WLib::SPI::ChipSelect_Interface
 {
 public:
-  bool_chip_select(bool& cs)
-      : m_flag(cs)
+  bool_chip_select(int32_t& cs)
+      : m_count(cs)
   {
   }
 
 private:
-  void select() override { this->m_flag = true; };
-  void deselect() override { this->m_flag = false; };
+  void select() override { this->m_count++; };
+  void deselect() override { this->m_count--; };
 
-  bool& m_flag;
+  int32_t& m_count;
 };
 
 class count_spi_dummy final: public WLib::SPI::HW_Interface
 {
 public:
-  count_spi_dummy(std::size_t& count, bool& en)
+  count_spi_dummy(std::size_t& count, int32_t& en)
       : m_count(count)
       , m_en(en)
   {
@@ -31,7 +31,7 @@ private:
 
   void enable(Configuration const& cfg) override
   {
-    this->m_en       = true;
+    this->m_en++;
     this->m_bautrate = cfg.get_max_bautrate();
   };
 
@@ -39,122 +39,110 @@ private:
 
   void disable() override
   {
-    this->m_en       = false;
+    this->m_en--;
     this->m_bautrate = 0;
   }
 
   std::size_t& m_count;
-  bool&        m_en;
+  int32_t&     m_en;
   uint32_t     m_bautrate = 0;
 };
 
 TEST_CASE()
 {
-  bool        flag_spi   = false;
-  bool        flag_cs    = false;
-  std::size_t byte_count = 0;
+  int32_t     spi_en_count = 0;
+  int32_t     cs_sel_count = 0;
+  std::size_t byte_count   = 0;
 
-  count_spi_dummy   spi_obj(byte_count, flag_spi);
-  bool_chip_select  cs_obj(flag_cs);
+  count_spi_dummy             spi_obj(byte_count, spi_en_count);
+  bool_chip_select            cs_obj(cs_sel_count);
   WLib::SPI::Channel_Provider dev_obj(cs_obj, spi_obj);
 
-  WLib::SPI::Channel_Provider_Interface& dev_i = dev_obj;
+  WLib::SPI::Channel_Provider& dev_i = dev_obj;
 
   constexpr WLib::SPI::HW_Interface::Configuration cfg{
     123'000'000,
     WLib::SPI::HW_Interface::Configuration::Mode::Mode_3,
   };
 
-  REQUIRE(!flag_spi);
-  REQUIRE(!flag_cs);
+  REQUIRE(spi_en_count == 0);
+  REQUIRE(cs_sel_count == 0);
   REQUIRE(byte_count == 0);
 
   {
-    auto&& session = dev_i.request_channel(cfg);
-    REQUIRE(flag_spi);
-    REQUIRE(!flag_cs);
+    auto&& channel = dev_i.request_channel(cfg);
+    REQUIRE(spi_en_count == 1);
+    REQUIRE(cs_sel_count == 0);
     REQUIRE(byte_count == 0);
-    REQUIRE(session.get_actual_bautrate() <= cfg.get_max_bautrate());
+    REQUIRE(channel.get_actual_bautrate() <= cfg.get_max_bautrate());
   }
 
-  REQUIRE(!flag_spi);
-  REQUIRE(!flag_cs);
+  REQUIRE(spi_en_count == 0);
+  REQUIRE(cs_sel_count == 0);
   REQUIRE(byte_count == 0);
 
   {
-    auto&& session = dev_i.request_channel(cfg);
-    session.select_chip().transceive(nullptr, nullptr, 10);
+    auto&& channel = dev_i.request_channel(cfg);
+    channel.select_chip().transceive(nullptr, nullptr, 10);
 
-    REQUIRE(flag_spi);
-    REQUIRE(!flag_cs);
+    REQUIRE(spi_en_count == 1);
+    REQUIRE(cs_sel_count == 0);
     REQUIRE(byte_count == 10);
 
-    auto&& chip = session.select_chip();
+    auto&& chip = channel.select_chip();
     chip.transceive(nullptr, nullptr, 20);
 
-    REQUIRE(flag_spi);
-    REQUIRE(flag_cs);
+    REQUIRE(spi_en_count == 1);
+    REQUIRE(cs_sel_count == 1);
     REQUIRE(byte_count == 30);
 
-    session.select_chip().transceive(nullptr, nullptr, 25);
+    CHECK_THROWS(channel.select_chip().transceive(nullptr, nullptr, 25));
+    chip.transceive(nullptr, nullptr, 25);
 
-    REQUIRE(flag_spi);
-    REQUIRE(flag_cs);
+    REQUIRE(spi_en_count == 1);
+    REQUIRE(cs_sel_count == 1);
     REQUIRE(byte_count == 55);
 
     chip.transceive(nullptr, nullptr, 30);
 
-    REQUIRE(flag_spi);
-    REQUIRE(flag_cs);
+    REQUIRE(spi_en_count == 1);
+    REQUIRE(cs_sel_count == 1);
     REQUIRE(byte_count == 85);
   }
-  REQUIRE(!flag_spi);
-  REQUIRE(!flag_cs);
+  REQUIRE(spi_en_count == 0);
+  REQUIRE(cs_sel_count == 0);
   REQUIRE(byte_count == 85);
+  {
+    auto&& chip = dev_i.request_channel(cfg).select_chip();
+    chip.transceive(nullptr, nullptr, 5);
+    chip.transceive(nullptr, nullptr, 10);
+    chip.transceive(nullptr, nullptr, 5);
+  }
+  REQUIRE(spi_en_count == 0);
+  REQUIRE(cs_sel_count == 0);
+  REQUIRE(byte_count == 105);
 }
 
 TEST_CASE()
 {
-  bool cs_flag = false;
+  int32_t cs_flag = 0;
 
-  bool_chip_select                                     cs(cs_flag);
-  WLib::SPI::Internal::recursive_chip_select_wrapper_t w_cs(cs);
+  bool_chip_select                                  cs(cs_flag);
+  WLib::SPI::Internal::unique_chip_select_wrapper_t w_cs(cs);
 
-  REQUIRE(!cs_flag);
-
-  w_cs.select();
-  REQUIRE(cs_flag);
-  
-  w_cs.deselect();
-  REQUIRE(!cs_flag);
+  REQUIRE(cs_flag == 0);
 
   w_cs.select();
-  REQUIRE(cs_flag);
+  REQUIRE(cs_flag == 1);
+
+  w_cs.deselect();
+  REQUIRE(cs_flag == 0);
 
   w_cs.select();
-  REQUIRE(cs_flag);
+  REQUIRE(cs_flag == 1);
 
-  w_cs.select();
-  REQUIRE(cs_flag);
-
-  w_cs.select();
-  REQUIRE(cs_flag);
-
-  w_cs.select();
-  REQUIRE(cs_flag);
+  CHECK_THROWS(w_cs.select());
 
   w_cs.deselect();
-  REQUIRE(cs_flag);
-
-  w_cs.deselect();
-  REQUIRE(cs_flag);
-
-  w_cs.deselect();
-  REQUIRE(cs_flag);
-  
-  w_cs.deselect();
-  REQUIRE(cs_flag);
-
-  w_cs.deselect();
-  REQUIRE(!cs_flag);
+  REQUIRE(cs_flag == 0);
 }
