@@ -5,7 +5,7 @@
 #include <WLib_Utility.hpp>
 #include <cstddef>
 #include <cstdint>
-#include <execution>
+#include <utility>
 
 namespace WLib::SPI
 {

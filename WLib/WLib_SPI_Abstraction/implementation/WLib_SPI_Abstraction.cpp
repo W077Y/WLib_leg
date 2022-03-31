@@ -1,14 +1,11 @@
 #include <WLib_SPI_Abstraction.hpp>
-#include <exception>
+
 namespace WLib::SPI
 {
-  class mutible_selection_exception_t: public std::exception
+  class mutible_selection_exception_t
   {
   public:
-    virtual char const* what() const noexcept override
-    {
-      return "multible chip select usage error";
-    }
+    virtual char const* what() const noexcept { return "multible chip select usage error"; }
   };
 
   namespace
@@ -29,7 +26,7 @@ namespace WLib::SPI
       virtual void     transceive(std::byte const*, std::byte*, std::size_t){};
     };
   }    // namespace
-  
+
   void Internal::unique_chip_select_wrapper_t::mutible_selection_error_handler()
   {
     throw mutible_selection_exception_t();
