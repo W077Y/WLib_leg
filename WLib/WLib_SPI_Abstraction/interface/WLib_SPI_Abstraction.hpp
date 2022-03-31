@@ -198,15 +198,17 @@ namespace WLib::SPI
     };
 
   public:
+      using channel_handle_t = Channel_Handle;
+
     Channel_Provider(ChipSelect_Interface& chip_sel, HW_Interface& spi)
         : m_chip_select(chip_sel)
         , m_spi_hw(spi)
     {
     }
 
-    Channel_Handle request_channel(HW_Interface::Configuration const& cfg)
+    channel_handle_t request_channel(HW_Interface::Configuration const& cfg)
     {
-      return Channel_Handle(this->m_chip_select, this->m_spi_hw, cfg);
+      return channel_handle_t(this->m_chip_select, this->m_spi_hw, cfg);
     }
 
   private:
