@@ -2,6 +2,8 @@
 /out
 /.vs
 /build
+/html
+/doc_template
 
 CMakePresets.json
 # Prerequisites
