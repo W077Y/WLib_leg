@@ -3,7 +3,12 @@
 /.vs
 /build
 /html
-/doc_template
+
+
+!/doc_template
+/doc_template/*.log
+/doc_template/*.aux
+/doc_template/*.gz
 
 CMakePresets.json
 # Prerequisites

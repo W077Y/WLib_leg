@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>850</x>
+      <y>0</y>
+      <w>210</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>SPI-Slave
+Chip A</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>850</x>
+      <y>160</y>
+      <w>210</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>SPI-Slave
+Chip B</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>20</y>
+      <w>310</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=[CLK]-[CLK]</panel_attributes>
+    <additional_attributes>20.0;10.0;280.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>50</y>
+      <w>310</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=[MOSI]-[MOSI]</panel_attributes>
+    <additional_attributes>20.0;10.0;280.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>80</y>
+      <w>310</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=[MISO]-[MISO]</panel_attributes>
+    <additional_attributes>20.0;10.0;280.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>110</y>
+      <w>310</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=[CS A]-[CS]</panel_attributes>
+    <additional_attributes>20.0;10.0;280.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>760</x>
+      <y>20</y>
+      <w>120</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>lt=-[CLK]</panel_attributes>
+    <additional_attributes>10.0;10.0;20.0;20.0;20.0;170.0;90.0;170.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>740</x>
+      <y>50</y>
+      <w>140</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>lt=-[MOSI]</panel_attributes>
+    <additional_attributes>10.0;10.0;20.0;20.0;20.0;170.0;110.0;170.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>720</x>
+      <y>80</y>
+      <w>160</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>lt=-[MISO]</panel_attributes>
+    <additional_attributes>10.0;10.0;20.0;20.0;20.0;170.0;130.0;170.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>570</x>
+      <y>270</y>
+      <w>310</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=[CS B]-[CS]</panel_attributes>
+    <additional_attributes>20.0;10.0;280.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>350</x>
+      <y>0</y>
+      <w>240</w>
+      <h>310</h>
+    </coordinates>
+    <panel_attributes>uC</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>810</x>
+      <y>580</y>
+      <w>550</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>/HW_Interface/
+-
+#enable(cfg: Configuration): void 
+#disable(): void
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>810</x>
+      <y>490</y>
+      <w>550</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>/Connection_Interface/
+-
+#transceive(tx: byte*, rx: [out] byte*, len: size_t): void
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>220</x>
+      <y>580</y>
+      <w>550</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>/ChipSelect_Interface/
+-
+#select(): void 
+#deselect(): void
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>810</x>
+      <y>740</y>
+      <w>550</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>Channel_Handle
+-
+-HW_Interface
+-ChipSelect_Interface
+-
+#select_chip():Connection_Handel
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>810</x>
+      <y>870</y>
+      <w>550</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Connection_Handle
+-
+-Connection_Interface
+-ChipSelect_Interface
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

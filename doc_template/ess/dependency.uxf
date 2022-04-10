@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>15</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1200</x>
+      <y>300</y>
+      <w>375</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>valign=center
+*Platform A SPI-HW-Driver*</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>585</x>
+      <y>300</y>
+      <w>405</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;interface&gt;&gt;
+*WLib-SPI-Abstraction*
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>375</x>
+      <y>300</y>
+      <w>240</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.
+&lt;&lt;use&gt;&gt;</panel_attributes>
+    <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>975</x>
+      <y>300</y>
+      <w>255</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.
+&lt;&lt;provide&gt;&gt;
+
+</panel_attributes>
+    <additional_attributes>10.0;20.0;150.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>75</x>
+      <y>300</y>
+      <w>315</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>valign=center
+*Chip XY Driver*</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>945</x>
+      <y>345</y>
+      <w>285</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;&gt;
+&lt;&lt;provide&gt;&gt;
+
+</panel_attributes>
+    <additional_attributes>170.0;50.0;10.0;50.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>915</x>
+      <y>345</y>
+      <w>315</w>
+      <h>225</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;&gt;
+&lt;&lt;provide&gt;&gt;
+
+</panel_attributes>
+    <additional_attributes>190.0;110.0;10.0;110.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>885</x>
+      <y>345</y>
+      <w>345</w>
+      <h>315</h>
+    </coordinates>
+    <panel_attributes>lt=.&gt;&gt;
+&lt;&lt;provide&gt;&gt;
+
+</panel_attributes>
+    <additional_attributes>210.0;170.0;10.0;170.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1200</x>
+      <y>390</y>
+      <w>375</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>valign=center
+*Platform B SPI-HW-Driver*</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1200</x>
+      <y>480</y>
+      <w>375</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>valign=center
+*Platform C SPI-HW-Driver*</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1200</x>
+      <y>570</y>
+      <w>375</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>valign=center
+*Platform D SPI-HW-Driver*</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
