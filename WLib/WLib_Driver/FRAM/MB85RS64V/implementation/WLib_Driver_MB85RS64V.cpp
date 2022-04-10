@@ -95,15 +95,15 @@ namespace WLib::Driver::FRAM
 
   void MB85RS64V::read(uint32_t const& add, std::byte* ptr, std::size_t const& len)
   {
-    auto&& season = this->m_device.request_channel(spi_cfg);
-    comm_func::read(season, add, ptr, len);
+    auto&& channel = this->m_device.request_channel(spi_cfg);
+    comm_func::read(channel, add, ptr, len);
   }
 
   void MB85RS64V::write(uint32_t const& add, std::byte const* ptr, std::size_t const& len)
   {
-    auto&& season = this->m_device.request_channel(spi_cfg);
-    comm_func::enable_write(season);
-    comm_func::write(season, add, ptr, len);
+    auto&& channel = this->m_device.request_channel(spi_cfg);
+    comm_func::enable_write(channel);
+    comm_func::write(channel, add, ptr, len);
   }
 
   uint8_t MB85RS64V::get_manufacturer_id() const { return this->m_manufacturer_id; }

@@ -14,84 +14,19 @@ namespace WLib::SPI
   class ChipSelect_Interface;
   class Channel_Provider;
 
-  /// <summary>
-  /// This interface abstracts the communication on the bus
-  /// </summary>
   class Connection_Interface
   {
   public:
-    /// <summary>
-    /// Transmit and receive function for bus communication
-    /// </summary>
-    /// <param name="tx">Pointer to the outgoing data</param>
-    /// <param name="rx">Pointer for the incoming data</param>
-    /// <param name="len">Number of bytes to be sent or received</param>
-    /// <details>
-    /// Transmit and receive 20 bytes
-    /// <code>
-    /// std::byte tx[20];
-    /// std::byte rx[20];
-    /// // ... fill tx with data
-    /// con.transceive(tx, rx, 20);
-    /// // ... use the received data from rx
-    /// </code>
-    /// Transmit and receive 20 bytes where the buffers for outgoing and incoming data are shared.
-    /// <code>
-    /// std::byte tx_rx[20];
-    /// // ... fill tx_rx with data
-    /// con.transceive(tx_rx, tx_rx, 20);
-    /// // ... use the received data from tx_rx
-    /// </code>
-    /// Sending 20 bytes the received bytes are not of interest and are discarded
-    /// <code>
-    /// std::byte tx[20];
-    /// // ... fill tx with data
-    /// con.transceive(tx, nullptr, 20);
-    /// </code>
-    /// Receive 20 bytes the outgoing data are not of interest
-    /// <code>
-    /// std::byte rx[20];
-    /// con.transceive(nullptr, rx, 20);
-    /// // ... use the received data from rx
-    /// </code>
-    /// Clocks of 20 bytes neither outgoing nor incoming data are of interest
-    /// <code>
-    /// con.transceive(nullptr, nullptr, 20);
-    /// </code>
-    /// Send 2 command bytes then send 4 dummy bytes followed by receive 200 data bytes
-    /// <code>
-    /// std::byte tx[2];
-    /// std::byte rx[200];
-    /// // ... fill tx with data
-    /// con.transceive(tx, nullptr, 2);
-    /// con.transceive(nullptr, nullptr, 4);
-    /// con.transceive(nullptr, rx, 200);
-    /// // ... use the received data from rx
-    /// </code>
-    /// </details>
     virtual void transceive(std::byte const* tx, std::byte* rx, std::size_t len) = 0;
   };
 
-  /// <summary>
-  ///  This interface abstracts the SPI hardware
-  /// </summary>
   class HW_Interface
       : public Connection_Interface
       , private Utility::non_copyable_non_moveable_t
   {
   public:
-    /// <summary>
-    /// Requests a reference to the null_hw
-    /// </summary>
-    /// <returns>Reference to the null_hw</returns>
-    /// <details>
-    /// The null_hw is a dummy implementation of the HW_Interface
-    /// </details>
     static HW_Interface& get_null_hw();
 
-    /// <summary>
-    /// The configuration object for the SPI hardware
-    /// </summary>
     class Configuration
     {
     public:
@@ -152,51 +87,20 @@ namespace WLib::SPI
       Bit_Order m_bit_order    = Bit_Order::MSB_first;
     };
 
-    /// <summary>
-    /// Enabels the SPI hardware with the given configuration
-    /// </summary>
-    /// <param name="cfg">bus configuration</param>
-    /// <details>
-    /// By enabling the hardware, it is reserved and must be disabled before it can be enabled
-    /// again.
-    /// </details>
     virtual void enable(Configuration const& cfg) = 0;
 
-    /// <summary>
-    /// Returns the currently set baudrate
-    /// </summary>
-    /// <returns>Bautrate</returns>
     virtual uint32_t get_actual_bautrate() const = 0;
 
-    /// <summary>
-    /// Disables the SPI hardware
-    /// </summary>
     virtual void disable() = 0;
   };
 
-  /// <summary>
-  /// This interface abstracts the selection mechanism for the bus nodes
-  /// </summary>
   class ChipSelect_Interface
   {
   public:
-    /// <summary>
-    /// Requests a reference to the null_chip_select
-    /// </summary>
-    /// <returns>Reference to the null_chip_select</returns>
-    /// <details>
-    /// The null_chip_select is a dummy implementation of the ChipSelect_Interface
-    /// </details>
     static ChipSelect_Interface& get_null_chip_select();
 
-    /// <summary>
-    /// Selects the bus node
-    /// </summary>
     virtual void select() = 0;
 
-    /// <summary>
-    /// Deselects the bus node
-    /// </summary>
     virtual void deselect() = 0;
   };
 
