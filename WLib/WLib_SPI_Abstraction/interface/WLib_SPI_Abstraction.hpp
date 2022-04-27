@@ -3,6 +3,7 @@
 #define WLIB_SPI_ABSTRACTION_HPP
 
 #include <WLib_Utility.hpp>
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <utility>
