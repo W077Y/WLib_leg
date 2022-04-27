@@ -104,15 +104,15 @@ struct hw_mock: public WLib::SPI::HW_Interface
     }
   }
 
-  virtual void enable(Configuration const& cfg) override
+  virtual void enable(cfg_t const& cfg) override
   {
     if (this->m_status)
       throw "multi enable";
     this->m_status   = true;
-    this->m_bautrate = (cfg.get_max_bautrate() + cfg.get_min_bautrate()) / 2;
+    this->m_bautrate = (cfg.get_max_clock_rate() + cfg.get_min_clock_rate()) / 2;
   }
 
-  virtual uint32_t get_actual_bautrate() const override { return this->m_bautrate; }
+  virtual uint32_t get_actual_clock_rate() const override { return this->m_bautrate; }
 
   virtual void disable() override
   {

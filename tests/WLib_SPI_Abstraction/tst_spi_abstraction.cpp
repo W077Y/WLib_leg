@@ -6,13 +6,19 @@ class bool_chip_select final: public WLib::SPI::ChipSelect_Interface
 {
 public:
   bool_chip_select(int32_t& cs)
-      : m_count(cs)
+    : m_count(cs)
   {
   }
 
 private:
-  void select() override { this->m_count++; };
-  void deselect() override { this->m_count--; };
+  void select() override
+  {
+    this->m_count++;
+  };
+  void deselect() override
+  {
+    this->m_count--;
+  };
 
   int32_t& m_count;
 };
@@ -21,21 +27,27 @@ class count_spi_dummy final: public WLib::SPI::HW_Interface
 {
 public:
   count_spi_dummy(std::size_t& count, int32_t& en)
-      : m_count(count)
-      , m_en(en)
+    : m_count(count)
+    , m_en(en)
   {
   }
 
 private:
-  void transceive(std::byte const*, std::byte*, std::size_t len) override { this->m_count += len; }
+  void transceive(std::byte const*, std::byte*, std::size_t len) override
+  {
+    this->m_count += len;
+  }
 
-  void enable(Configuration const& cfg) override
+  void enable(cfg_t const& cfg) override
   {
     this->m_en++;
-    this->m_bautrate = cfg.get_max_bautrate();
+    this->m_bautrate = cfg.get_max_clock_rate();
   };
 
-  uint32_t get_actual_bautrate() const override { return this->m_bautrate; }
+  uint32_t get_actual_clock_rate() const override
+  {
+    return this->m_bautrate;
+  }
 
   void disable() override
   {
@@ -60,9 +72,9 @@ TEST_CASE()
 
   WLib::SPI::Channel_Provider& dev_i = dev_obj;
 
-  constexpr WLib::SPI::HW_Interface::Configuration cfg{
-    123'000'000,
-    WLib::SPI::HW_Interface::Configuration::Mode::Mode_3,
+  constexpr WLib::SPI::Configuration cfg{
+    WLib::SPI::Configuration::Clock_Range(123'000'000),
+    WLib::SPI::Configuration::Mode::Mode_3,
   };
 
   REQUIRE(spi_en_count == 0);
@@ -74,7 +86,7 @@ TEST_CASE()
     REQUIRE(spi_en_count == 1);
     REQUIRE(cs_sel_count == 0);
     REQUIRE(byte_count == 0);
-    REQUIRE(channel.get_actual_bautrate() <= cfg.get_max_bautrate());
+    REQUIRE(channel.get_actual_clock_rate() <= cfg.get_max_clock_rate());
   }
 
   REQUIRE(spi_en_count == 0);

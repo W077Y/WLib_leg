@@ -5,13 +5,19 @@ class cout_chip_select final: public WLib::SPI::ChipSelect_Interface
 {
 public:
   cout_chip_select(const char* name)
-      : m_name(name)
+    : m_name(name)
   {
   }
 
 private:
-  void select() override { std::cout << "  " << this->m_name << " selected" << std::endl; };
-  void deselect() override { std::cout << "  " << this->m_name << " deselected" << std::endl; };
+  void select() override
+  {
+    std::cout << "  " << this->m_name << " selected" << std::endl;
+  };
+  void deselect() override
+  {
+    std::cout << "  " << this->m_name << " deselected" << std::endl;
+  };
 
   const char* m_name;
 };
@@ -20,7 +26,7 @@ class cout_spi_dummy final: public WLib::SPI::HW_Interface
 {
 public:
   cout_spi_dummy(const char* name)
-      : m_name(name)
+    : m_name(name)
   {
   }
 
@@ -30,14 +36,20 @@ private:
     std::cout << "    " << this->m_name << " transceive " << len << " bytes" << std::endl;
   }
 
-  void enable(Configuration const& cfg) override
+  void enable(cfg_t const& cfg) override
   {
-    std::cout << this->m_name << " enabled with bautrate " << cfg.get_max_bautrate() << std::endl;
+    std::cout << this->m_name << " enabled with bautrate " << cfg.get_max_clock_rate() << std::endl;
   };
 
-  uint32_t get_actual_bautrate() const override { return 0; }
+  uint32_t get_actual_clock_rate() const override
+  {
+    return 0;
+  }
 
-  void disable() override { std::cout << this->m_name << " disabled" << std::endl; }
+  void disable() override
+  {
+    std::cout << this->m_name << " disabled" << std::endl;
+  }
 
   const char* m_name;
 };
@@ -56,15 +68,14 @@ WLib::SPI::HW_Interface& get_spi_1()
 
 WLib::SPI::Channel_Provider& get_eeprom_1()
 {
-  static WLib::SPI::Channel_Provider obj{ get_chip_select_eeprom_1(), get_spi_1() };
+  static WLib::SPI::Channel_Provider obj{get_chip_select_eeprom_1(), get_spi_1()};
   return obj;
 }
 
 int main()
 {
-  constexpr WLib::SPI::HW_Interface::Configuration cfg{
-    123'000'000, WLib::SPI::HW_Interface::Configuration::Mode::Mode_3
-  };
+  constexpr WLib::SPI::Configuration cfg{WLib::SPI::Configuration::Clock_Range(123'000'000),
+                                         WLib::SPI::Configuration::Mode::Mode_3};
 
   {
     auto&& channel = get_eeprom_1().request_channel(cfg);

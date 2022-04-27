@@ -12,127 +12,135 @@ namespace WLib::SPI
   class Connection_Interface;
   class HW_Interface;
   class ChipSelect_Interface;
+
+  class Configuration;
   class Channel_Provider;
+  class Channel_Handle;
+  class Connection_Handle;
+
+  class Configuration
+  {
+  public:
+    enum class Mode
+    {
+      Mode_0        = 0,
+      Mode_1        = 1,
+      Mode_2        = 2,
+      Mode_3        = 3,
+      CPOL_0_CPHA_0 = Mode_0,
+      CPOL_0_CPHA_1 = Mode_1,
+      CPOL_1_CPHA_0 = Mode_2,
+      CPOL_1_CPHA_1 = Mode_3,
+    };
+
+    enum class Bit_Order
+    {
+      MSB_first = 0,
+      LSB_first = 1,
+    };
+
+    class Clock_Range
+    {
+    public:
+      explicit constexpr Clock_Range(uint32_t const& from, uint32_t const& to)
+        : m_min(std::min(from, to))
+        , m_max(std::max(from, to))
+      {
+      }
+
+      explicit constexpr Clock_Range(uint32_t const& up_to)
+        : m_max(up_to)
+      {
+      }
+
+      constexpr uint32_t get_min() const
+      {
+        return this->m_min;
+      }
+      constexpr uint32_t get_max() const
+      {
+        return this->m_max;
+      }
+
+    private:
+      uint32_t m_min = 0;
+      uint32_t m_max = 0;
+    };
+
+    constexpr Configuration(Clock_Range const& clock_speed, Mode const& spi_mode, Bit_Order const& bit_order)
+      : m_clock_speed_range(clock_speed)
+      , m_spi_mode(spi_mode)
+      , m_bit_order(bit_order){};
+
+    constexpr Configuration(Clock_Range const& clock_speed, Mode const& spi_mode)
+      : m_clock_speed_range(clock_speed)
+      , m_spi_mode(spi_mode){};
+
+    constexpr uint32_t get_min_clock_rate() const
+    {
+      return this->m_clock_speed_range.get_min();
+    }
+    constexpr uint32_t get_max_clock_rate() const
+    {
+      return this->m_clock_speed_range.get_max();
+    }
+    constexpr Mode get_spi_mode() const
+    {
+      return this->m_spi_mode;
+    }
+    constexpr Bit_Order get_bit_order() const
+    {
+      return this->m_bit_order;
+    }
+
+  private:
+    Clock_Range m_clock_speed_range = Clock_Range(0);
+    Mode        m_spi_mode          = Mode::Mode_0;
+    Bit_Order   m_bit_order         = Bit_Order::MSB_first;
+  };
 
   class Connection_Interface
   {
   public:
+    static Connection_Interface& get_null();
+
     virtual void transceive(std::byte const* tx, std::byte* rx, std::size_t len) = 0;
   };
 
-  class HW_Interface
-      : public Connection_Interface
-      , private Utility::non_copyable_non_moveable_t
+  class HW_Interface: public Connection_Interface
   {
   public:
-    static HW_Interface& get_null_hw();
+    using cfg_t = Configuration;
 
-    class Configuration
-    {
-    public:
-      enum class Mode
-      {
-        Mode_0        = 0,
-        Mode_1        = 1,
-        Mode_2        = 2,
-        Mode_3        = 3,
-        CPOL_0_CPHA_0 = Mode_0,
-        CPOL_0_CPHA_1 = Mode_1,
-        CPOL_1_CPHA_0 = Mode_2,
-        CPOL_1_CPHA_1 = Mode_3,
-      };
+    static HW_Interface& get_null();
 
-      enum class Bit_Order
-      {
-        MSB_first = 0,
-        LSB_first = 1,
-      };
-
-      constexpr Configuration(uint32_t const& max_bautrate, Mode const& spi_mode)
-          : m_max_bautrate(max_bautrate)
-          , m_spi_mode(spi_mode){};
-
-      constexpr Configuration(uint32_t const& max_bautrate,
-                              uint32_t const& min_bautrate,
-                              Mode const&     spi_mode)
-          : m_max_bautrate(max_bautrate)
-          , m_min_bautrate(min_bautrate)
-          , m_spi_mode(spi_mode){};
-
-      constexpr Configuration(uint32_t const&  max_bautrate,
-                              Mode const&      spi_mode,
-                              Bit_Order const& bit_order)
-          : m_max_bautrate(max_bautrate)
-          , m_spi_mode(spi_mode)
-          , m_bit_order(bit_order){};
-
-      constexpr Configuration(uint32_t const&  max_bautrate,
-                              uint32_t const&  min_bautrate,
-                              Mode const&      spi_mode,
-                              Bit_Order const& bit_order)
-          : m_max_bautrate(max_bautrate)
-          , m_min_bautrate(min_bautrate)
-          , m_spi_mode(spi_mode)
-          , m_bit_order(bit_order){};
-
-      constexpr uint32_t  get_max_bautrate() const { return this->m_max_bautrate; }
-      constexpr uint32_t  get_min_bautrate() const { return this->m_min_bautrate; }
-      constexpr Mode      get_spi_mode() const { return this->m_spi_mode; }
-      constexpr Bit_Order get_bit_order() const { return this->m_bit_order; }
-
-    private:
-      uint32_t  m_max_bautrate = 0;
-      uint32_t  m_min_bautrate = 0;
-      Mode      m_spi_mode     = Mode::Mode_0;
-      Bit_Order m_bit_order    = Bit_Order::MSB_first;
-    };
-
-    virtual void enable(Configuration const& cfg) = 0;
-
-    virtual uint32_t get_actual_bautrate() const = 0;
-
-    virtual void disable() = 0;
+    virtual void     enable(cfg_t const& cfg)      = 0;
+    virtual uint32_t get_actual_clock_rate() const = 0;
+    virtual void     disable()                     = 0;
   };
 
   class ChipSelect_Interface
   {
   public:
-    static ChipSelect_Interface& get_null_chip_select();
+    static ChipSelect_Interface& get_null();
 
-    virtual void select() = 0;
-
+    virtual void select()   = 0;
     virtual void deselect() = 0;
   };
 
   namespace Internal
   {
     class unique_chip_select_wrapper_t final
-        : public ChipSelect_Interface
-        , private Utility::non_copyable_non_moveable_t
+      : private Utility::non_copyable_non_moveable_t
+      , public ChipSelect_Interface
     {
     public:
-      unique_chip_select_wrapper_t(ChipSelect_Interface& chip_select)
-          : m_chip_select(chip_select)
-      {
-      }
+      unique_chip_select_wrapper_t(ChipSelect_Interface& chip_select);
 
-      ~unique_chip_select_wrapper_t() = default;
+      void select() override;
+      void deselect() override;
 
-      void select() override
-      {
-        if (this->m_sel_count != 0)
-          mutible_selection_error_handler();
-
-        ++this->m_sel_count;
-        this->m_chip_select.select();
-      };
-      void deselect() override
-      {
-        --this->m_sel_count;
-        this->m_chip_select.deselect();
-      };
-
-      ChipSelect_Interface& get_native_handle() { return this->m_chip_select; }
+      ChipSelect_Interface& get_native_handle();
 
     private:
       void mutible_selection_error_handler();
@@ -144,100 +152,54 @@ namespace WLib::SPI
 
   class Channel_Provider: private Utility::non_copyable_non_moveable_t
   {
-    class Channel_Handle final: private Utility::non_copyable_non_moveable_t
-    {
-      class Connection_Handle final
-          : public Connection_Interface
-          , private Utility::non_copyable_non_moveable_t
-      {
-      public:
-        Connection_Handle(Channel_Handle& channel)
-            : m_chip_sel(channel.m_chip_select)
-            , m_spi(*channel.m_spi_hw)
-        {
-          this->m_chip_sel.select();
-        }
-        ~Connection_Handle() { this->m_chip_sel.deselect(); }
-
-        void transceive(std::byte const* tx, std::byte* rx, std::size_t len) override
-        {
-          return this->m_spi.transceive(tx, rx, len);
-        }
-
-      private:
-        ChipSelect_Interface& m_chip_sel;
-        Connection_Interface& m_spi;
-      };
-
-      class Connection_Handle_HW final
-          : public Connection_Interface
-          , private Utility::non_copyable_non_moveable_t
-      {
-      public:
-        Connection_Handle_HW(Channel_Handle&& channel)
-            : m_chip_sel(channel.m_chip_select.get_native_handle())
-            , m_spi(*channel.m_spi_hw)
-        {
-          channel.m_chip_select.select();
-          channel.m_spi_hw = &HW_Interface::get_null_hw();
-        }
-        ~Connection_Handle_HW()
-        {
-          this->m_chip_sel.deselect();
-          this->m_spi.disable();
-        }
-
-        void transceive(std::byte const* tx, std::byte* rx, std::size_t len) override
-        {
-          return this->m_spi.transceive(tx, rx, len);
-        }
-
-      private:
-        ChipSelect_Interface& m_chip_sel;
-        HW_Interface&         m_spi;
-      };
-
-    public:
-      Channel_Handle(ChipSelect_Interface&              chip_sel,
-                     HW_Interface&                      spi,
-                     HW_Interface::Configuration const& cfg)
-          : m_chip_select(chip_sel)
-          , m_spi_hw(&spi)
-      {
-        this->m_spi_hw->enable(cfg);
-      }
-
-      ~Channel_Handle() { this->m_spi_hw->disable(); }
-
-      Connection_Handle select_chip() & { return Connection_Handle(*this); }
-
-      Connection_Handle_HW select_chip() && { return Connection_Handle_HW(std::move(*this)); }
-
-      uint32_t get_actual_bautrate() const { return this->m_spi_hw->get_actual_bautrate(); }
-
-    private:
-      Internal::unique_chip_select_wrapper_t m_chip_select;
-      HW_Interface*                          m_spi_hw;
-    };
-
   public:
     using channel_handle_t = Channel_Handle;
 
-    Channel_Provider(ChipSelect_Interface& chip_sel, HW_Interface& spi)
-        : m_chip_select(chip_sel)
-        , m_spi_hw(spi)
-    {
-    }
+    Channel_Provider(ChipSelect_Interface& chip_sel, HW_Interface& spi);
 
-    channel_handle_t request_channel(HW_Interface::Configuration const& cfg)
-    {
-      return channel_handle_t(this->m_chip_select, this->m_spi_hw, cfg);
-    }
+    channel_handle_t request_channel(Configuration const& cfg);
 
   private:
     ChipSelect_Interface& m_chip_select;
     HW_Interface&         m_spi_hw;
   };
+
+  class Channel_Handle final: private Utility::non_copyable_non_moveable_t
+  {
+  public:
+    using connection_handle_t = Connection_Handle;
+
+    Channel_Handle(ChipSelect_Interface& chip_sel, HW_Interface& spi, Configuration const& cfg);
+    ~Channel_Handle();
+
+    connection_handle_t select_chip() &;
+    connection_handle_t select_chip() &&;
+    uint32_t            get_actual_clock_rate() const;
+
+  private:
+    friend connection_handle_t;
+
+    Internal::unique_chip_select_wrapper_t m_chip_select;
+    HW_Interface*                          m_spi_hw;
+  };
+
+  class Connection_Handle final
+    : private Utility::non_copyable_non_moveable_t
+    , public Connection_Interface
+  {
+  public:
+    Connection_Handle(Channel_Handle& channel);
+    Connection_Handle(Channel_Handle&& channel);
+    ~Connection_Handle();
+
+    void transceive(std::byte const* tx, std::byte* rx, std::size_t len) override;
+
+  private:
+    ChipSelect_Interface& m_cs;
+    HW_Interface&         m_hw;
+    Connection_Interface& m_con;
+  };
+
 }    // namespace WLib::SPI
 
 #endif
