@@ -11,9 +11,7 @@ namespace WLib
   {
     namespace Internal
     {
-      template <typename St,
-                typename Ev,
-                typename = std::enable_if_t<std::is_enum_v<St> && std::is_enum_v<Ev>>>
+      template <typename St, typename Ev, typename = std::enable_if_t<std::is_enum_v<St> && std::is_enum_v<Ev>>>
       struct state_machine_traits
       {
       };
@@ -24,8 +22,7 @@ namespace WLib
     template <typename St, typename Ev> class Factory_interface;
     template <typename St, typename Ev> class Engine;
 
-    template <typename St, typename Ev>
-    class State_interface: public Internal::state_machine_traits<St, Ev>
+    template <typename St, typename Ev> class State_interface: public Internal::state_machine_traits<St, Ev>
     {
     public:
       using states_t     = St;
@@ -51,7 +48,7 @@ namespace WLib
 
     public:
       State_base(states_t const& state)
-          : m_state(state)
+        : m_state(state)
       {
       }
       virtual ~State_base() = default;
@@ -61,8 +58,7 @@ namespace WLib
       virtual states_t     get_state() const noexcept { return this->m_state; }
     };
 
-    template <typename St, typename Ev>
-    class Transition: public Internal::state_machine_traits<St, Ev>
+    template <typename St, typename Ev> class Transition: public Internal::state_machine_traits<St, Ev>
     {
       enum class Type
       {
@@ -83,21 +79,18 @@ namespace WLib
 
       constexpr Transition() noexcept = default;
       constexpr Transition(events_t const& event, states_t const& target) noexcept
-          : m_type(Type::to_target)
-          , m_event(event)
-          , m_target(target)
+        : m_type(Type::to_target)
+        , m_event(event)
+        , m_target(target)
       {
       }
-      constexpr Transition(states_t const& source,
-                           events_t const& event,
-                           states_t const& target) noexcept
-          : m_type(Type::source_to_target)
-          , m_source(source)
-          , m_event(event)
-          , m_target(target){};
+      constexpr Transition(states_t const& source, events_t const& event, states_t const& target) noexcept
+        : m_type(Type::source_to_target)
+        , m_source(source)
+        , m_event(event)
+        , m_target(target){};
 
-      constexpr opt_states_t operator()(states_t const& current_state,
-                                        events_t const& event) const noexcept
+      constexpr opt_states_t operator()(states_t const& current_state, events_t const& event) const noexcept
       {
         if (this->m_type == Type::empty)
           return std::nullopt;
@@ -122,8 +115,7 @@ namespace WLib
       }
     };
 
-    template <typename St, typename Ev>
-    class Factory_interface: public Internal::state_machine_traits<St, Ev>
+    template <typename St, typename Ev> class Factory_interface: public Internal::state_machine_traits<St, Ev>
     {
     public:
       using states_t          = St;
@@ -133,8 +125,7 @@ namespace WLib
       virtual void               destruct_state(state_interface_t&) noexcept = 0;
     };
 
-    template <typename St, typename Ev, typename... T>
-    class Placement_State_Factory: public Factory_interface<St, Ev>
+    template <typename St, typename Ev, typename... T> class Placement_State_Factory: public Factory_interface<St, Ev>
     {
     protected:
       std::aligned_union_t<0, T...> m_mem = {};
@@ -193,22 +184,17 @@ namespace WLib
       }
 
     public:
-      constexpr Engine(transition_t const*  table,
-                       std::size_t const&   table_length,
-                       factory_interface_t& state_factory,
-                       states_t const&      inital_state) noexcept
-          : m_tab(table)
-          , m_len(table_length)
-          , m_fac(state_factory)
-          , m_cur(&this->m_fac.construct_state(inital_state))
+      constexpr Engine(transition_t const* table, std::size_t const& table_length, factory_interface_t& state_factory, states_t const& inital_state) noexcept
+        : m_tab(table)
+        , m_len(table_length)
+        , m_fac(state_factory)
+        , m_cur(&this->m_fac.construct_state(inital_state))
       {
       }
 
       template <std::size_t N>
-      constexpr Engine(transition_t const (&tab)[N],
-                       factory_interface_t& factory,
-                       states_t const&      inital_state) noexcept
-          : Engine(tab, N, factory, inital_state)
+      constexpr Engine(transition_t const (&tab)[N], factory_interface_t& factory, states_t const& inital_state) noexcept
+        : Engine(tab, N, factory, inital_state)
       {
       }
 
@@ -229,8 +215,7 @@ namespace WLib
       states_t get_state() const noexcept { return this->m_cur->get_state(); }
     };
 
-    template <typename St, typename Ev>
-    struct state_machine_types: public Internal::state_machine_traits<St, Ev>
+    template <typename St, typename Ev> struct state_machine_types: public Internal::state_machine_traits<St, Ev>
     {
       using states_t                                     = St;
       using events_t                                     = Ev;

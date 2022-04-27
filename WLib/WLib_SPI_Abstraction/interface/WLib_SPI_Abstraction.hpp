@@ -53,14 +53,8 @@ namespace WLib::SPI
       {
       }
 
-      constexpr uint32_t get_min() const
-      {
-        return this->m_min;
-      }
-      constexpr uint32_t get_max() const
-      {
-        return this->m_max;
-      }
+      constexpr uint32_t get_min() const { return this->m_min; }
+      constexpr uint32_t get_max() const { return this->m_max; }
 
     private:
       uint32_t m_min = 0;
@@ -76,22 +70,10 @@ namespace WLib::SPI
       : m_clock_speed_range(clock_speed)
       , m_spi_mode(spi_mode){};
 
-    constexpr uint32_t get_min_clock_rate() const
-    {
-      return this->m_clock_speed_range.get_min();
-    }
-    constexpr uint32_t get_max_clock_rate() const
-    {
-      return this->m_clock_speed_range.get_max();
-    }
-    constexpr Mode get_spi_mode() const
-    {
-      return this->m_spi_mode;
-    }
-    constexpr Bit_Order get_bit_order() const
-    {
-      return this->m_bit_order;
-    }
+    constexpr uint32_t  get_min_clock_rate() const { return this->m_clock_speed_range.get_min(); }
+    constexpr uint32_t  get_max_clock_rate() const { return this->m_clock_speed_range.get_max(); }
+    constexpr Mode      get_spi_mode() const { return this->m_spi_mode; }
+    constexpr Bit_Order get_bit_order() const { return this->m_bit_order; }
 
   private:
     Clock_Range m_clock_speed_range = Clock_Range(0);

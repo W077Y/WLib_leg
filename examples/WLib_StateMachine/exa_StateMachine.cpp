@@ -1,11 +1,11 @@
 #include <WLib_StateMachine.hpp>
-#include <iostream>
-#include <mutex>
-#include <string>
-#include <thread>
 #include <atomic>
 #include <chrono>
-#include <sstream> 
+#include <iostream>
+#include <mutex>
+#include <sstream>
+#include <string>
+#include <thread>
 
 class process
 {
@@ -36,18 +36,17 @@ private:
 
   using state_machine_t = WLib::StateMachine::state_machine_types<States, Events>;
   static constexpr state_machine_t::transition_t trans_table[] = {
-    { States::initialize, Events::next, States::ready },
-    { States::ready, Events::start, States::prepare_action },
+    {States::initialize, Events::next, States::ready},
+    {States::ready, Events::start, States::prepare_action},
 
-    { States::clean_after, Events::next, States::done },
+    {States::clean_after, Events::next, States::done},
 
+    {States::prepare_action, Events::abort, States::aborting},
+    {States::action, Events::abort, States::aborting},
+    {States::clean_after, Events::abort, States::aborting},
 
-    { States::prepare_action, Events::abort, States::aborting },
-    { States::action, Events::abort, States::aborting },
-    { States::clean_after, Events::abort, States::aborting },
-
-    { States::done, Events::complete, States::ready },
-    { States::aborted, Events::complete, States::ready },
+    {States::done, Events::complete, States::ready},
+    {States::aborted, Events::complete, States::ready},
   };
 
   class initialize: public state_machine_t::state_base_t
@@ -58,8 +57,8 @@ private:
 
   public:
     initialize(std::string& output_str)
-        : State_base(States::initialize)
-        , m_str(output_str)
+      : State_base(States::initialize)
+      , m_str(output_str)
     {
       this->m_str.append("enter initialize\n");
     }
@@ -91,8 +90,8 @@ private:
 
   public:
     ready(std::string& output_str)
-        : State_base(States::ready)
-        , m_str(output_str)
+      : State_base(States::ready)
+      , m_str(output_str)
     {
       this->m_str.append("enter ready\n");
     }
@@ -107,8 +106,8 @@ private:
 
   public:
     process_step(std::string& output_str)
-        : State_base(States::prepare_action)
-        , m_str(output_str)
+      : State_base(States::prepare_action)
+      , m_str(output_str)
     {
       this->m_str.append("enter process_step\n");
     }
@@ -149,8 +148,8 @@ private:
 
   public:
     done(std::string& output_str)
-        : State_base(States::done)
-        , m_str(output_str)
+      : State_base(States::done)
+      , m_str(output_str)
     {
       this->m_str.append("enter done\n");
     }
@@ -165,8 +164,8 @@ private:
 
   public:
     aborting(std::string& output_str)
-        : State_base(States::aborting)
-        , m_str(output_str)
+      : State_base(States::aborting)
+      , m_str(output_str)
     {
       this->m_str.append("enter aborting\n");
     }
@@ -196,14 +195,13 @@ private:
     }
   };
 
-  class factory_t
-      : public state_machine_t::placement_factory_t<initialize, ready, process_step, done, aborting>
+  class factory_t: public state_machine_t::placement_factory_t<initialize, ready, process_step, done, aborting>
   {
     std::string& m_str;
 
   public:
     factory_t(std::string& output_str)
-        : m_str(output_str)
+      : m_str(output_str)
     {
     }
 
@@ -211,22 +209,22 @@ private:
     {
       switch (state)
       {
-      case states_t::initialize:
+      case states_t::initialize :
         return *new (&this->m_mem) initialize(this->m_str);
 
-      case states_t::ready:
+      case states_t::ready :
         return *new (&this->m_mem) ready(this->m_str);
 
-      case states_t::prepare_action:
+      case states_t::prepare_action :
         return *new (&this->m_mem) process_step(this->m_str);
 
-      case states_t::done:
+      case states_t::done :
         return *new (&this->m_mem) done(this->m_str);
 
-      case states_t::aborting:
+      case states_t::aborting :
         return *new (&this->m_mem) aborting(this->m_str);
 
-      default:
+      default :
         break;
       }
       return *new (&this->m_mem) state_machine_t::state_base_t(states_t::error);
@@ -237,7 +235,7 @@ private:
   mutable std::mutex        m_tex;
   std::thread               m_worker;
   factory_t                 m_fac;
-  state_machine_t::engine_t m_eng{ process::trans_table, m_fac, States::initialize };
+  state_machine_t::engine_t m_eng{process::trans_table, m_fac, States::initialize};
 
   void worker_loop()
   {
@@ -254,9 +252,13 @@ private:
 
 public:
   process(std::string& str)
-      : m_fac(str)
+    : m_fac(str)
   {
-    this->m_worker = std::thread([&]() { this->worker_loop(); });
+    this->m_worker = std::thread(
+      [&]()
+      {
+        this->worker_loop();
+      });
   }
   ~process()
   {

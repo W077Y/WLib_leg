@@ -91,19 +91,10 @@ namespace WLib::Driver::FRAM
     comm_func::write(channel, add, ptr, len);
   }
 
-  uint8_t MB85RS64V::get_manufacturer_id() const
-  {
-    return this->m_manufacturer_id;
-  }
+  uint8_t MB85RS64V::get_manufacturer_id() const { return this->m_manufacturer_id; }
 
-  uint8_t MB85RS64V::get_continuation_code() const
-  {
-    return this->m_continuation_code;
-  }
+  uint8_t MB85RS64V::get_continuation_code() const { return this->m_continuation_code; }
 
-  uint16_t MB85RS64V::get_product_id() const
-  {
-    return this->m_product_id;
-  }
+  uint16_t MB85RS64V::get_product_id() const { return this->m_product_id; }
 
 }    // namespace WLib::Driver::FRAM

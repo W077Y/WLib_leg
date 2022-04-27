@@ -19,20 +19,20 @@ namespace WLib
   class byte_sink_t
   {
   };
-  
-  template <typename T> constexpr bool is_byte_sink_v     = std::is_base_of_v<byte_sink_t, T>;
+
+  template <typename T> constexpr bool is_byte_sink_v = std::is_base_of_v<byte_sink_t, T>;
 
   class byte_source_t
   {
   };
-  
-  template <typename T> constexpr bool is_byte_source_v   = std::is_base_of_v<byte_source_t, T>;
+
+  template <typename T> constexpr bool is_byte_source_v = std::is_base_of_v<byte_source_t, T>;
 
   class byte_sink_ptr: public byte_sink_t
   {
   public:
     constexpr byte_sink_ptr(std::byte* ptr)
-        : m_pos(ptr)
+      : m_pos(ptr)
     {
     }
 
@@ -46,7 +46,7 @@ namespace WLib
   {
   public:
     constexpr byte_source_ptr(std::byte const* ptr)
-        : m_pos(ptr)
+      : m_pos(ptr)
     {
     }
 
@@ -60,17 +60,17 @@ namespace WLib
   {
   public:
     constexpr byte_sink_ext_buffer(std::byte* begin, std::byte const* end)
-        : m_beg(begin)
-        , m_pos(begin)
-        , m_end(end)
+      : m_beg(begin)
+      , m_pos(begin)
+      , m_end(end)
     {
     }
 
     template <std::size_t N>
     constexpr byte_sink_ext_buffer(std::byte (&buffer)[N])
-        : m_beg(buffer)
-        , m_pos(buffer)
-        , m_end(buffer + N)
+      : m_beg(buffer)
+      , m_pos(buffer)
+      , m_end(buffer + N)
     {
     }
 
@@ -114,17 +114,17 @@ namespace WLib
   {
   public:
     constexpr byte_source_ext_buffer(std::byte const* begin, std::byte const* end)
-        : m_beg(begin)
-        , m_pos(begin)
-        , m_end(end)
+      : m_beg(begin)
+      , m_pos(begin)
+      , m_end(end)
     {
     }
 
     template <std::size_t N>
     constexpr byte_source_ext_buffer(std::byte const (&buffer)[N])
-        : m_beg(buffer)
-        , m_pos(buffer)
-        , m_end(buffer + N)
+      : m_beg(buffer)
+      , m_pos(buffer)
+      , m_end(buffer + N)
     {
     }
 
@@ -171,26 +171,22 @@ namespace WLib
       static constexpr bool is_serializable = false;
     };
 
-    template <typename T, std::size_t min_size, std::size_t max_size>
-    struct template_serializeable_type
+    template <typename T, std::size_t min_size, std::size_t max_size> struct template_serializeable_type
     {
-      using type_t                                         = std::remove_cv_t<T>;
-      static constexpr bool        is_serializable         = true;
-      static constexpr std::size_t minimal_serialized_size = min_size;
-      static constexpr std::size_t maximal_serialized_size = max_size;
-      static constexpr bool        has_constant_serialized_size =
-          minimal_serialized_size == maximal_serialized_size;
+      using type_t                                              = std::remove_cv_t<T>;
+      static constexpr bool        is_serializable              = true;
+      static constexpr std::size_t minimal_serialized_size      = min_size;
+      static constexpr std::size_t maximal_serialized_size      = max_size;
+      static constexpr bool        has_constant_serialized_size = minimal_serialized_size == maximal_serialized_size;
     };
 
-    template <typename T>
-    struct native_serializeable_type: public template_serializeable_type<T, sizeof(T), sizeof(T)>
+    template <typename T> struct native_serializeable_type: public template_serializeable_type<T, sizeof(T), sizeof(T)>
     {
       using typename template_serializeable_type<T, sizeof(T), sizeof(T)>::type_t;
       using template_serializeable_type<T, sizeof(T), sizeof(T)>::maximal_serialized_size;
 
       template <typename byte_sink_t>
-      static constexpr void
-      ser(byte_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
+      static constexpr void ser(byte_sink_t& sink, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
       {
         if (byte_order == ByteOrder::native)
         {
@@ -209,8 +205,7 @@ namespace WLib
       }
 
       template <typename byte_source_t>
-      static constexpr type_t deser(byte_source_t&   source,
-                                    ByteOrder const& byte_order = ByteOrder::native)
+      static constexpr type_t deser(byte_source_t& source, ByteOrder const& byte_order = ByteOrder::native)
       {
         type_t ret;
         if (byte_order == ByteOrder::native)
@@ -265,37 +260,31 @@ namespace WLib
 
   template <typename T>
   struct serializer_traits
-      : public std::conditional_t<Internal::is_native_serializable_v<T>,
-                                  Internal::native_serializeable_type<T>,
-                                  Internal::not_seriailizeable_type>
+    : public std::conditional_t<Internal::is_native_serializable_v<T>, Internal::native_serializeable_type<T>, Internal::not_seriailizeable_type>
   {
   };
-  
+
   template <typename T> constexpr bool is_serializeable_v = serializer_traits<T>::is_serializable;
-  
+
   template <typename T>
-  constexpr bool has_constant_serialized_size_v =
-      serializer_traits<T>::has_constant_serialized_size;
-
+  constexpr bool has_constant_serialized_size_v = serializer_traits<T>::has_constant_serialized_size;
 
   template <typename... Ts>
-  constexpr std::size_t minimal_serialized_size_v =
-      Internal::sum({ serializer_traits<Ts>::minimal_serialized_size... });
-  
+  constexpr std::size_t minimal_serialized_size_v = Internal::sum({serializer_traits<Ts>::minimal_serialized_size...});
+
   template <typename... Ts>
-  constexpr std::size_t maximal_serialized_size_v =
-      Internal::sum({ serializer_traits<Ts>::maximal_serialized_size... });
+  constexpr std::size_t maximal_serialized_size_v = Internal::sum({serializer_traits<Ts>::maximal_serialized_size...});
 
   template <typename T, typename sink_t>
-  constexpr std::enable_if_t<is_serializeable_v<T> && is_byte_sink_v<sink_t>, void>
-  serialize(sink_t& sink, T const& value, ByteOrder const& byte_order = ByteOrder::native)
+  constexpr std::enable_if_t<is_serializeable_v<T> && is_byte_sink_v<sink_t>, void> serialize(
+    sink_t& sink, T const& value, ByteOrder const& byte_order = ByteOrder::native)
   {
     return serializer_traits<T>::ser(sink, value, byte_order);
   }
 
   template <typename T, typename source_t>
-  constexpr std::enable_if_t<is_serializeable_v<T> && is_byte_source_v<source_t>, T>
-  deserialize(source_t& source, ByteOrder const& byte_order = ByteOrder::native)
+  constexpr std::enable_if_t<is_serializeable_v<T> && is_byte_source_v<source_t>, T> deserialize(source_t& source,
+                                                                                                 ByteOrder const& byte_order = ByteOrder::native)
   {
     return serializer_traits<T>::deser(source, byte_order);
   }

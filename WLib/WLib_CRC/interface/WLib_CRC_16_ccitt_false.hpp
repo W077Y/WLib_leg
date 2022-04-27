@@ -3,7 +3,6 @@
 #define WLIB_CRC_16_CCITT_FALSE_HPP
 
 #include <WLib_CRC_Interface.hpp>
-
 #include <cstddef>
 #include <cstdint>
 

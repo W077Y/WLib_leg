@@ -3,8 +3,11 @@
 #include <vector>
 
 std::byte rdid_resp[5] = {
-  static_cast<std::byte>(0xAA), static_cast<std::byte>(0x04), static_cast<std::byte>(0x7F),
-  static_cast<std::byte>(0x03), static_cast<std::byte>(0x02),
+  static_cast<std::byte>(0xAA),
+  static_cast<std::byte>(0x04),
+  static_cast<std::byte>(0x7F),
+  static_cast<std::byte>(0x03),
+  static_cast<std::byte>(0x02),
 };
 
 std::byte opcode_rdid  = static_cast<std::byte>(0b1001'1111);
@@ -58,7 +61,7 @@ struct spi_slave_mock
 struct cs_mock: public WLib::SPI::ChipSelect_Interface
 {
   cs_mock(spi_slave_mock& slave)
-      : slave(slave)
+    : slave(slave)
   {
   }
   virtual void select() override
@@ -85,7 +88,7 @@ struct cs_mock: public WLib::SPI::ChipSelect_Interface
 struct hw_mock: public WLib::SPI::HW_Interface
 {
   hw_mock(spi_slave_mock& slave)
-      : slave(slave)
+    : slave(slave)
   {
   }
 

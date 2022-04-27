@@ -11,14 +11,8 @@ public:
   }
 
 private:
-  void select() override
-  {
-    this->m_count++;
-  };
-  void deselect() override
-  {
-    this->m_count--;
-  };
+  void select() override { this->m_count++; };
+  void deselect() override { this->m_count--; };
 
   int32_t& m_count;
 };
@@ -33,10 +27,7 @@ public:
   }
 
 private:
-  void transceive(std::byte const*, std::byte*, std::size_t len) override
-  {
-    this->m_count += len;
-  }
+  void transceive(std::byte const*, std::byte*, std::size_t len) override { this->m_count += len; }
 
   void enable(cfg_t const& cfg) override
   {
@@ -44,10 +35,7 @@ private:
     this->m_bautrate = cfg.get_max_clock_rate();
   };
 
-  uint32_t get_actual_clock_rate() const override
-  {
-    return this->m_bautrate;
-  }
+  uint32_t get_actual_clock_rate() const override { return this->m_bautrate; }
 
   void disable() override
   {

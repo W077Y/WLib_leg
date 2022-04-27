@@ -10,14 +10,8 @@ public:
   }
 
 private:
-  void select() override
-  {
-    std::cout << "  " << this->m_name << " selected" << std::endl;
-  };
-  void deselect() override
-  {
-    std::cout << "  " << this->m_name << " deselected" << std::endl;
-  };
+  void select() override { std::cout << "  " << this->m_name << " selected" << std::endl; };
+  void deselect() override { std::cout << "  " << this->m_name << " deselected" << std::endl; };
 
   const char* m_name;
 };
@@ -41,15 +35,9 @@ private:
     std::cout << this->m_name << " enabled with bautrate " << cfg.get_max_clock_rate() << std::endl;
   };
 
-  uint32_t get_actual_clock_rate() const override
-  {
-    return 0;
-  }
+  uint32_t get_actual_clock_rate() const override { return 0; }
 
-  void disable() override
-  {
-    std::cout << this->m_name << " disabled" << std::endl;
-  }
+  void disable() override { std::cout << this->m_name << " disabled" << std::endl; }
 
   const char* m_name;
 };
@@ -74,8 +62,7 @@ WLib::SPI::Channel_Provider& get_eeprom_1()
 
 int main()
 {
-  constexpr WLib::SPI::Configuration cfg{WLib::SPI::Configuration::Clock_Range(123'000'000),
-                                         WLib::SPI::Configuration::Mode::Mode_3};
+  constexpr WLib::SPI::Configuration cfg{WLib::SPI::Configuration::Clock_Range(123'000'000), WLib::SPI::Configuration::Mode::Mode_3};
 
   {
     auto&& channel = get_eeprom_1().request_channel(cfg);

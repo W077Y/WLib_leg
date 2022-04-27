@@ -8,22 +8,17 @@ static_assert(WLib::maximal_serialized_size_v<std::byte> == 1, "char size");
 
 static_assert(WLib::maximal_serialized_size_v<short> == 2, "short size");
 static_assert(WLib::maximal_serialized_size_v<int> == 4, "int size");
-static_assert(WLib::maximal_serialized_size_v<long> == 4 ||
-                  WLib::maximal_serialized_size_v<long> == 8,
-              "long size");
+static_assert(WLib::maximal_serialized_size_v<long> == 4 || WLib::maximal_serialized_size_v<long> == 8, "long size");
 static_assert(WLib::maximal_serialized_size_v<long long> == 8, "long long size");
 
 static_assert(WLib::maximal_serialized_size_v<unsigned short> == 2, "short size");
 static_assert(WLib::maximal_serialized_size_v<unsigned int> == 4, "int size");
-static_assert(WLib::maximal_serialized_size_v<unsigned long> == 4 ||
-                  WLib::maximal_serialized_size_v<unsigned long> == 8,
-              "long size");
+static_assert(WLib::maximal_serialized_size_v<unsigned long> == 4 || WLib::maximal_serialized_size_v<unsigned long> == 8, "long size");
 static_assert(WLib::maximal_serialized_size_v<unsigned long long> == 8, "long long size");
 
 static_assert(WLib::maximal_serialized_size_v<float> == 4, "float size");
 static_assert(WLib::maximal_serialized_size_v<double> == 8, "double size");
-static_assert(WLib::maximal_serialized_size_v<long double> == 8 ||
-                  WLib ::maximal_serialized_size_v<long double> == 16,
+static_assert(WLib::maximal_serialized_size_v<long double> == 8 || WLib ::maximal_serialized_size_v<long double> == 16,
               "long double size");
 
 static_assert(WLib::has_constant_serialized_size_v<char>, "char size");
@@ -59,14 +54,12 @@ TEST_CASE()
   WLib::serialize(cur, static_cast<short>(0xEEFF), WLib::ByteOrder::little_endian);
   WLib::serialize(cur, static_cast<int>(0xAABB'CCDD), WLib::ByteOrder::little_endian);
   WLib::serialize(cur, static_cast<long>(0xEEFF'AABB), WLib::ByteOrder::little_endian);
-  WLib::serialize(cur, static_cast<long long>(0xCCDD'EEFF'AABB'CCDD),
-                  WLib::ByteOrder::little_endian);
+  WLib::serialize(cur, static_cast<long long>(0xCCDD'EEFF'AABB'CCDD), WLib::ByteOrder::little_endian);
 
   WLib::serialize(cur, static_cast<unsigned short>(0xEEFF), WLib::ByteOrder::little_endian);
   WLib::serialize(cur, static_cast<unsigned int>(0xAABB'CCDD), WLib::ByteOrder::little_endian);
   WLib::serialize(cur, static_cast<unsigned long>(0xEEFF'AABB), WLib::ByteOrder::little_endian);
-  WLib::serialize(cur, static_cast<unsigned long long>(0xCCDD'EEFF'AABB'CCDD),
-                  WLib::ByteOrder::little_endian);
+  WLib::serialize(cur, static_cast<unsigned long long>(0xCCDD'EEFF'AABB'CCDD), WLib::ByteOrder::little_endian);
 
   WLib::serialize(cur, static_cast<float>(3.14159f), WLib::ByteOrder::little_endian);
   WLib::serialize(cur, static_cast<double>(31.4159), WLib::ByteOrder::little_endian);
@@ -88,10 +81,9 @@ TEST_CASE()
   if constexpr (WLib::maximal_serialized_size_v<long> == 8)
   {
     int const ref[] = {
-      0xAA, 0xBB, 0xCC, 0xDD, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0xBB, 0xAA,
-      0xFF, 0xEE, 0x00, 0x00, 0x00, 0x00, 0xDD, 0xCC, 0xBB, 0xAA, 0xFF, 0xEE,
-      0xDD, 0xCC, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0xBB, 0xAA, 0xFF, 0xEE,
-      0x00, 0x00, 0x00, 0x00, 0xDD, 0xCC, 0xBB, 0xAA, 0xFF, 0xEE, 0xDD, 0xCC,
+      0xAA, 0xBB, 0xCC, 0xDD, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0xBB, 0xAA, 0xFF, 0xEE, 0x00, 0x00,
+      0x00, 0x00, 0xDD, 0xCC, 0xBB, 0xAA, 0xFF, 0xEE, 0xDD, 0xCC, 0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA,
+      0xBB, 0xAA, 0xFF, 0xEE, 0x00, 0x00, 0x00, 0x00, 0xDD, 0xCC, 0xBB, 0xAA, 0xFF, 0xEE, 0xDD, 0xCC,
     };
 
     for (std::size_t i = 0; i < std::size(ref); ++i)
@@ -102,28 +94,18 @@ TEST_CASE()
 
   WLib::byte_source_ptr pos(tmp);
   REQUIRE(WLib::deserialize<char>(pos, WLib::ByteOrder::little_endian) == static_cast<char>(0xAA));
-  REQUIRE(WLib::deserialize<signed char>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<signed char>(0xBB));
-  REQUIRE(WLib::deserialize<unsigned char>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<unsigned char>(0xCC));
-  REQUIRE(WLib::deserialize<std::byte>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<std::byte>(0xDD));
+  REQUIRE(WLib::deserialize<signed char>(pos, WLib::ByteOrder::little_endian) == static_cast<signed char>(0xBB));
+  REQUIRE(WLib::deserialize<unsigned char>(pos, WLib::ByteOrder::little_endian) == static_cast<unsigned char>(0xCC));
+  REQUIRE(WLib::deserialize<std::byte>(pos, WLib::ByteOrder::little_endian) == static_cast<std::byte>(0xDD));
 
-  REQUIRE(WLib::deserialize<short>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<short>(0xEEFF));
-  REQUIRE(WLib::deserialize<int>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<int>(0xAABB'CCDD));
-  REQUIRE(WLib::deserialize<long>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<long>(0xEEFF'AABB));
-  REQUIRE(WLib::deserialize<long long>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<long long>(0xCCDD'EEFF'AABB'CCDD));
+  REQUIRE(WLib::deserialize<short>(pos, WLib::ByteOrder::little_endian) == static_cast<short>(0xEEFF));
+  REQUIRE(WLib::deserialize<int>(pos, WLib::ByteOrder::little_endian) == static_cast<int>(0xAABB'CCDD));
+  REQUIRE(WLib::deserialize<long>(pos, WLib::ByteOrder::little_endian) == static_cast<long>(0xEEFF'AABB));
+  REQUIRE(WLib::deserialize<long long>(pos, WLib::ByteOrder::little_endian) == static_cast<long long>(0xCCDD'EEFF'AABB'CCDD));
 
-  REQUIRE(WLib::deserialize<unsigned short>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<unsigned short>(0xEEFF));
-  REQUIRE(WLib::deserialize<unsigned int>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<unsigned int>(0xAABB'CCDD));
-  REQUIRE(WLib::deserialize<unsigned long>(pos, WLib::ByteOrder::little_endian) ==
-          static_cast<unsigned long>(0xEEFF'AABB));
+  REQUIRE(WLib::deserialize<unsigned short>(pos, WLib::ByteOrder::little_endian) == static_cast<unsigned short>(0xEEFF));
+  REQUIRE(WLib::deserialize<unsigned int>(pos, WLib::ByteOrder::little_endian) == static_cast<unsigned int>(0xAABB'CCDD));
+  REQUIRE(WLib::deserialize<unsigned long>(pos, WLib::ByteOrder::little_endian) == static_cast<unsigned long>(0xEEFF'AABB));
   REQUIRE(WLib::deserialize<unsigned long long>(pos, WLib::ByteOrder::little_endian) ==
           static_cast<unsigned long long>(0xCCDD'EEFF'AABB'CCDD));
 
@@ -150,8 +132,7 @@ TEST_CASE()
   WLib::serialize(cur, static_cast<unsigned short>(0xEEFF), WLib::ByteOrder::big_endian);
   WLib::serialize(cur, static_cast<unsigned int>(0xAABB'CCDD), WLib::ByteOrder::big_endian);
   WLib::serialize(cur, static_cast<unsigned long>(0xEEFF'AABB), WLib::ByteOrder::big_endian);
-  WLib::serialize(cur, static_cast<unsigned long long>(0xCCDD'EEFF'AABB'CCDD),
-                  WLib::ByteOrder::big_endian);
+  WLib::serialize(cur, static_cast<unsigned long long>(0xCCDD'EEFF'AABB'CCDD), WLib::ByteOrder::big_endian);
 
   WLib::serialize(cur, static_cast<float>(3.14159f), WLib::ByteOrder::big_endian);
   WLib::serialize(cur, static_cast<double>(31.4159), WLib::ByteOrder::big_endian);
@@ -173,10 +154,9 @@ TEST_CASE()
   if constexpr (WLib::maximal_serialized_size_v<long> == 8)
   {
     int const ref[] = {
-      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD, 0x00, 0x00,
-      0x00, 0x00, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAA, 0xBB,
-      0xCC, 0xDD, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD, 0x00, 0x00, 0x00, 0x00,
-      0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD,
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD, 0x00, 0x00, 0x00, 0x00, 0xEE, 0xFF,
+      0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD,
+      0x00, 0x00, 0x00, 0x00, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0xAA, 0xBB, 0xCC, 0xDD,
     };
 
     for (std::size_t i = 0; i < std::size(ref); ++i)
@@ -187,27 +167,18 @@ TEST_CASE()
 
   WLib::byte_source_ptr pos(tmp);
   REQUIRE(WLib::deserialize<char>(pos, WLib::ByteOrder::big_endian) == static_cast<char>(0xAA));
-  REQUIRE(WLib::deserialize<signed char>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<signed char>(0xBB));
-  REQUIRE(WLib::deserialize<unsigned char>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<unsigned char>(0xCC));
-  REQUIRE(WLib::deserialize<std::byte>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<std::byte>(0xDD));
+  REQUIRE(WLib::deserialize<signed char>(pos, WLib::ByteOrder::big_endian) == static_cast<signed char>(0xBB));
+  REQUIRE(WLib::deserialize<unsigned char>(pos, WLib::ByteOrder::big_endian) == static_cast<unsigned char>(0xCC));
+  REQUIRE(WLib::deserialize<std::byte>(pos, WLib::ByteOrder::big_endian) == static_cast<std::byte>(0xDD));
 
   REQUIRE(WLib::deserialize<short>(pos, WLib::ByteOrder::big_endian) == static_cast<short>(0xEEFF));
-  REQUIRE(WLib::deserialize<int>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<int>(0xAABB'CCDD));
-  REQUIRE(WLib::deserialize<long>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<long>(0xEEFF'AABB));
-  REQUIRE(WLib::deserialize<long long>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<long long>(0xCCDD'EEFF'AABB'CCDD));
+  REQUIRE(WLib::deserialize<int>(pos, WLib::ByteOrder::big_endian) == static_cast<int>(0xAABB'CCDD));
+  REQUIRE(WLib::deserialize<long>(pos, WLib::ByteOrder::big_endian) == static_cast<long>(0xEEFF'AABB));
+  REQUIRE(WLib::deserialize<long long>(pos, WLib::ByteOrder::big_endian) == static_cast<long long>(0xCCDD'EEFF'AABB'CCDD));
 
-  REQUIRE(WLib::deserialize<unsigned short>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<unsigned short>(0xEEFF));
-  REQUIRE(WLib::deserialize<unsigned int>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<unsigned int>(0xAABB'CCDD));
-  REQUIRE(WLib::deserialize<unsigned long>(pos, WLib::ByteOrder::big_endian) ==
-          static_cast<unsigned long>(0xEEFF'AABB));
+  REQUIRE(WLib::deserialize<unsigned short>(pos, WLib::ByteOrder::big_endian) == static_cast<unsigned short>(0xEEFF));
+  REQUIRE(WLib::deserialize<unsigned int>(pos, WLib::ByteOrder::big_endian) == static_cast<unsigned int>(0xAABB'CCDD));
+  REQUIRE(WLib::deserialize<unsigned long>(pos, WLib::ByteOrder::big_endian) == static_cast<unsigned long>(0xEEFF'AABB));
   REQUIRE(WLib::deserialize<unsigned long long>(pos, WLib::ByteOrder::big_endian) ==
           static_cast<unsigned long long>(0xCCDD'EEFF'AABB'CCDD));
 
@@ -241,13 +212,10 @@ namespace WLib
 {
   template <>
   struct serializer_traits<tst_struct>
-      : public Internal::template_serializeable_type<tst_struct,
-                                                     minimal_serialized_size_v<char, int, char>,
-                                                     maximal_serialized_size_v<char, int, char>>
+    : public Internal::template_serializeable_type<tst_struct, minimal_serialized_size_v<char, int, char>, maximal_serialized_size_v<char, int, char>>
   {
     template <typename iter_t>
-    static constexpr void
-    ser(iter_t& iter, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
+    static constexpr void ser(iter_t& iter, type_t const& value, ByteOrder const& byte_order = ByteOrder::native)
     {
       serialize(iter, value.a, byte_order);
       serialize(iter, value.b, byte_order);

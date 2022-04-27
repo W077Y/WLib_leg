@@ -24,7 +24,7 @@ class dummy_state: public dummy_state_machine_types::state_interface_t
 
 public:
   dummy_state(states_t const& state) noexcept
-      : m_state(state)
+    : m_state(state)
   {
   }
 
@@ -58,7 +58,7 @@ private:
 
 public:
   dummy_state_adv(dummy_ex_counter& obj) noexcept
-      : m_obj(obj)
+    : m_obj(obj)
   {
     this->m_obj.constructor_count++;
   }
@@ -77,9 +77,7 @@ public:
   virtual states_t get_state() const noexcept override { return states_t::C; }
 };
 
-class dummy_factory
-    : public WLib::StateMachine::
-          Placement_State_Factory<States_A, Events_A, dummy_state, dummy_state_adv>
+class dummy_factory: public WLib::StateMachine::Placement_State_Factory<States_A, Events_A, dummy_state, dummy_state_adv>
 {
   dummy_ex_counter m_obj_count;
 
@@ -175,7 +173,7 @@ TEST_CASE("Test Dummy Factory")
 {
   dummy_factory fac;
 
-  std::initializer_list<States_A> states = { States_A::A, States_A::B, States_A::C };
+  std::initializer_list<States_A> states = {States_A::A, States_A::B, States_A::C};
   for (auto tmp : states)
   {
     dummy_factory::state_interface_t& tmp_state = fac.construct_state(tmp);
@@ -189,35 +187,32 @@ TEST_CASE("Test Engine")
   dummy_factory fac;
 
   constexpr dummy_state_machine_types::transition_t trans_table[] = {
-    { States_A::A, Events_A::a, States_A::B },
-    { States_A::B, Events_A::b, States_A::C },
-    { States_A::C, Events_A::a, States_A::C },
-    { Events_A::d, States_A::A },
+    {States_A::A, Events_A::a, States_A::B},
+    {States_A::B, Events_A::b, States_A::C},
+    {States_A::C, Events_A::a, States_A::C},
+    {Events_A::d, States_A::A},
   };
 
   {
     dummy_state_machine_types::engine_t eng(trans_table, fac, States_A::A);
 
-    const std::tuple<States_A, dummy_state_machine_types::opt_events_t,
-                     dummy_state_machine_types::opt_events_t, States_A,
-                     dummy_state_machine_types::opt_events_t, States_A>
-        ref_states[] = {
-          { States_A::A, {}, {}, States_A::A, {}, States_A::B },
-          { States_A::B, {}, {}, States_A::B, {}, States_A::B },
-          { States_A::B, Events_A::a, Events_A::c, States_A::B, {}, States_A::B },
-          { States_A::B, Events_A::d, {}, States_A::A, {}, States_A::B },
-          { States_A::B, Events_A::b, {}, States_A::C, {}, States_A::C },
-          { States_A::C, {}, {}, States_A::C, {}, States_A::C },
-          { States_A::C, Events_A::d, {}, States_A::A, {}, States_A::B },
-          { States_A::B, Events_A::b, {}, States_A::C, {}, States_A::C },
-          { States_A::C, {}, {}, States_A::C, {}, States_A::C },
-          { States_A::C, {}, {}, States_A::C, {}, States_A::C },
-          { States_A::C, {}, {}, States_A::C, {}, States_A::C },
-        };
+    const std::tuple<States_A, dummy_state_machine_types::opt_events_t, dummy_state_machine_types::opt_events_t, States_A, dummy_state_machine_types::opt_events_t, States_A>
+      ref_states[] = {
+        {States_A::A, {}, {}, States_A::A, {}, States_A::B},
+        {States_A::B, {}, {}, States_A::B, {}, States_A::B},
+        {States_A::B, Events_A::a, Events_A::c, States_A::B, {}, States_A::B},
+        {States_A::B, Events_A::d, {}, States_A::A, {}, States_A::B},
+        {States_A::B, Events_A::b, {}, States_A::C, {}, States_A::C},
+        {States_A::C, {}, {}, States_A::C, {}, States_A::C},
+        {States_A::C, Events_A::d, {}, States_A::A, {}, States_A::B},
+        {States_A::B, Events_A::b, {}, States_A::C, {}, States_A::C},
+        {States_A::C, {}, {}, States_A::C, {}, States_A::C},
+        {States_A::C, {}, {}, States_A::C, {}, States_A::C},
+        {States_A::C, {}, {}, States_A::C, {}, States_A::C},
+      };
 
     REQUIRE(eng.get_state() == States_A::A);
-    for (auto [init_state, opt_evt, resp_opt_event, state_post_evt, resp_tick, state_post_tick] :
-         ref_states)
+    for (auto [init_state, opt_evt, resp_opt_event, state_post_evt, resp_tick, state_post_tick] : ref_states)
     {
       REQUIRE(eng.get_state() == init_state);
       if (opt_evt.has_value())
