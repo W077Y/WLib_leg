@@ -1,6 +1,6 @@
 #include <WLib_SPI_Abstraction.hpp>
 
-namespace WLib::SPI
+namespace WLib::SPI_Abstraction::Sync
 {
   class mutible_selection_exception_t
   {
@@ -10,20 +10,20 @@ namespace WLib::SPI
 
   namespace
   {
-    class null_connection_t final: public Connection_Interface
+    class dummy_connection_t final: public Connection_Interface
     {
     public:
       virtual void transceive(std::byte const*, std::byte*, std::size_t) override{};
     };
 
-    class null_cs_t final: public ChipSelect_Interface
+    class dummy_cs_t final: public ChipSelect_Interface
     {
     public:
       virtual void select() override{};
       virtual void deselect() override{};
     };
 
-    class null_hw_t final: public HW_Interface
+    class dummy_hw_t final: public HW_Interface
     {
     public:
       virtual void     enable(Configuration const& cfg) override{};
@@ -32,9 +32,9 @@ namespace WLib::SPI
       virtual void     transceive(std::byte const*, std::byte*, std::size_t) override{};
     };
 
-    null_connection_t null_connection;
-    null_cs_t         null_cs;
-    null_hw_t         null_hw;
+    dummy_connection_t dummy_connection;
+    dummy_cs_t         dummy_cs;
+    dummy_hw_t         dummy_hw;
   }    // namespace
 
   namespace Internal
@@ -64,9 +64,9 @@ namespace WLib::SPI
     void unique_chip_select_wrapper_t::mutible_selection_error_handler() { throw mutible_selection_exception_t(); }
   }    // namespace Internal
 
-  Connection_Interface& Connection_Interface::get_null() { return null_connection; }
-  HW_Interface&         HW_Interface::get_null() { return null_hw; }
-  ChipSelect_Interface& ChipSelect_Interface::get_null() { return null_cs; }
+  Connection_Interface& Connection_Interface::get_dummy() { return dummy_connection; }
+  HW_Interface&         HW_Interface::get_dummy() { return dummy_hw; }
+  ChipSelect_Interface& ChipSelect_Interface::get_dummy() { return dummy_cs; }
 
   Channel_Handle::Channel_Handle(ChipSelect_Interface& chip_sel, HW_Interface& spi, Configuration const& cfg)
     : m_chip_select(chip_sel)
@@ -91,10 +91,10 @@ namespace WLib::SPI
 
   Connection_Handle::Connection_Handle(Channel_Handle& channel)
     : m_cs(channel.m_chip_select)
-    , m_hw(HW_Interface::get_null())
+    , m_hw(HW_Interface::get_dummy())
     , m_con(*channel.m_spi_hw)
   {
-    this->m_cs.select();
+    channel.m_chip_select.select();
   }
 
   Connection_Handle::Connection_Handle(Channel_Handle&& channel)
@@ -103,7 +103,7 @@ namespace WLib::SPI
     , m_con(*channel.m_spi_hw)
   {
     channel.m_chip_select.select();
-    channel.m_spi_hw = &HW_Interface::get_null();
+    channel.m_spi_hw = &HW_Interface::get_dummy();
   }
 
   Connection_Handle::~Connection_Handle()
@@ -127,5 +127,4 @@ namespace WLib::SPI
   {
     return Channel_Provider::channel_handle_t(this->m_chip_select, this->m_spi_hw, cfg);
   }
-
-}    // namespace WLib::SPI
+}    // namespace WLib::SPI_Abstraction::Sync

@@ -58,7 +58,7 @@ struct spi_slave_mock
   std::vector<std::byte> m_opcodes;
 };
 
-struct cs_mock: public WLib::SPI::ChipSelect_Interface
+struct cs_mock: public WLib::SPI_Abstraction::Sync::ChipSelect_Interface
 {
   cs_mock(spi_slave_mock& slave)
     : slave(slave)
@@ -85,7 +85,7 @@ struct cs_mock: public WLib::SPI::ChipSelect_Interface
   spi_slave_mock& slave;
 };
 
-struct hw_mock: public WLib::SPI::HW_Interface
+struct hw_mock: public WLib::SPI_Abstraction::Sync::HW_Interface
 {
   hw_mock(spi_slave_mock& slave)
     : slave(slave)
@@ -136,7 +136,7 @@ TEST_CASE()
   hw_mock        hw(chip);
   cs_mock        cs(chip);
 
-  WLib::SPI::Channel_Provider channel_pro(cs, hw);
+  WLib::SPI_Abstraction::Sync::Channel_Provider channel_pro(cs, hw);
 
   {
     REQUIRE(chip.m_opcodes.size() == 0);

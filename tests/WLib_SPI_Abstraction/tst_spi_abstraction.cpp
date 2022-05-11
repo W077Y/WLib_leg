@@ -2,7 +2,7 @@
 #include <iostream>
 #include <ut_catch.hpp>
 
-class bool_chip_select final: public WLib::SPI::ChipSelect_Interface
+class bool_chip_select final: public WLib::SPI_Abstraction::Sync::ChipSelect_Interface
 {
 public:
   bool_chip_select(int32_t& cs)
@@ -17,7 +17,7 @@ private:
   int32_t& m_count;
 };
 
-class count_spi_dummy final: public WLib::SPI::HW_Interface
+class count_spi_dummy final: public WLib::SPI_Abstraction::Sync::HW_Interface
 {
 public:
   count_spi_dummy(std::size_t& count, int32_t& en)
@@ -54,15 +54,15 @@ TEST_CASE()
   int32_t     cs_sel_count = 0;
   std::size_t byte_count   = 0;
 
-  count_spi_dummy             spi_obj(byte_count, spi_en_count);
-  bool_chip_select            cs_obj(cs_sel_count);
-  WLib::SPI::Channel_Provider dev_obj(cs_obj, spi_obj);
+  count_spi_dummy                               spi_obj(byte_count, spi_en_count);
+  bool_chip_select                              cs_obj(cs_sel_count);
+  WLib::SPI_Abstraction::Sync::Channel_Provider dev_obj(cs_obj, spi_obj);
 
-  WLib::SPI::Channel_Provider& dev_i = dev_obj;
+  WLib::SPI_Abstraction::Sync::Channel_Provider& dev_i = dev_obj;
 
-  constexpr WLib::SPI::Configuration cfg{
-    WLib::SPI::Configuration::Clock_Range(123'000'000),
-    WLib::SPI::Configuration::Mode::Mode_3,
+  constexpr WLib::SPI_Abstraction::Sync::Configuration cfg{
+    WLib::SPI_Abstraction::Sync::Configuration::Clock_Range(123'000'000),
+    WLib::SPI_Abstraction::Sync::Configuration::Mode::Mode_3,
   };
 
   REQUIRE(spi_en_count == 0);
@@ -127,8 +127,8 @@ TEST_CASE()
 {
   int32_t cs_flag = 0;
 
-  bool_chip_select                                  cs(cs_flag);
-  WLib::SPI::Internal::unique_chip_select_wrapper_t w_cs(cs);
+  bool_chip_select                                                    cs(cs_flag);
+  WLib::SPI_Abstraction::Sync::Internal::unique_chip_select_wrapper_t w_cs(cs);
 
   REQUIRE(cs_flag == 0);
 

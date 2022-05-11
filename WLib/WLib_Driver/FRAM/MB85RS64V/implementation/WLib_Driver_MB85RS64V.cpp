@@ -14,12 +14,12 @@ namespace WLib::Driver::FRAM
     [[maybe_unused]] static constexpr std::byte RDID  = static_cast<std::byte>(0b1001'1111);    // Read Device ID
   }                                                                                             // namespace OP_CODE
 
-  using spi_cfg_t               = WLib::SPI::Configuration;
+  using spi_cfg_t               = WLib::SPI_Abstraction::Sync::Configuration;
   static constexpr auto spi_cfg = spi_cfg_t{spi_cfg_t::Clock_Range(1, 20'000'000), spi_cfg_t::Mode::Mode_0};
 
   namespace comm_func
   {
-    using channel_handle_t = WLib::SPI::Channel_Provider::channel_handle_t;
+    using channel_handle_t = WLib::SPI_Abstraction::Sync::Channel_Provider::channel_handle_t;
 
     void read(channel_handle_t& channel, uint16_t const& add, std::byte* ptr, std::size_t const& len)
     {
@@ -60,7 +60,7 @@ namespace WLib::Driver::FRAM
 
   }    // namespace comm_func
 
-  MB85RS64V::MB85RS64V(WLib::SPI::Channel_Provider& device)
+  MB85RS64V::MB85RS64V(channel_provider_t& device)
     : m_device(device)
   {
     std::byte txrx[5] = {};

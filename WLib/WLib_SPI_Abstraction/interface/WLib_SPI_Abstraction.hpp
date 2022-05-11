@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <utility>
 
-namespace WLib::SPI
+namespace WLib::SPI_Abstraction::Sync
 {
   class Connection_Interface;
   class HW_Interface;
@@ -85,7 +85,7 @@ namespace WLib::SPI
   class Connection_Interface
   {
   public:
-    static Connection_Interface& get_null();
+    static Connection_Interface& get_dummy();
 
     virtual void transceive(std::byte const* tx, std::byte* rx, std::size_t len) = 0;
   };
@@ -95,7 +95,7 @@ namespace WLib::SPI
   public:
     using cfg_t = Configuration;
 
-    static HW_Interface& get_null();
+    static HW_Interface& get_dummy();
 
     virtual void     enable(cfg_t const& cfg)      = 0;
     virtual uint32_t get_actual_clock_rate() const = 0;
@@ -105,7 +105,7 @@ namespace WLib::SPI
   class ChipSelect_Interface
   {
   public:
-    static ChipSelect_Interface& get_null();
+    static ChipSelect_Interface& get_dummy();
 
     virtual void select()   = 0;
     virtual void deselect() = 0;
@@ -183,6 +183,6 @@ namespace WLib::SPI
     Connection_Interface& m_con;
   };
 
-}    // namespace WLib::SPI
+}    // namespace WLib::SPI_Abstraction::Sync
 
 #endif

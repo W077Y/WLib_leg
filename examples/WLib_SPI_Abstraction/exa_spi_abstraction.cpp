@@ -1,7 +1,9 @@
 #include <WLib_SPI_Abstraction.hpp>
 #include <iostream>
 
-class cout_chip_select final: public WLib::SPI::ChipSelect_Interface
+namespace spi_abst = WLib::SPI_Abstraction::Sync;
+
+class cout_chip_select final: public spi_abst::ChipSelect_Interface
 {
 public:
   cout_chip_select(const char* name)
@@ -16,7 +18,7 @@ private:
   const char* m_name;
 };
 
-class cout_spi_dummy final: public WLib::SPI::HW_Interface
+class cout_spi_dummy final: public spi_abst::HW_Interface
 {
 public:
   cout_spi_dummy(const char* name)
@@ -42,27 +44,27 @@ private:
   const char* m_name;
 };
 
-WLib::SPI::ChipSelect_Interface& get_chip_select_eeprom_1()
+spi_abst::ChipSelect_Interface& get_chip_select_eeprom_1()
 {
   static cout_chip_select obj("EEPROM_1");
   return obj;
 }
 
-WLib::SPI::HW_Interface& get_spi_1()
+spi_abst::HW_Interface& get_spi_1()
 {
   static cout_spi_dummy obj("SPI_1");
   return obj;
 }
 
-WLib::SPI::Channel_Provider& get_eeprom_1()
+spi_abst::Channel_Provider& get_eeprom_1()
 {
-  static WLib::SPI::Channel_Provider obj{get_chip_select_eeprom_1(), get_spi_1()};
+  static spi_abst::Channel_Provider obj{get_chip_select_eeprom_1(), get_spi_1()};
   return obj;
 }
 
 int main()
 {
-  constexpr WLib::SPI::Configuration cfg{WLib::SPI::Configuration::Clock_Range(123'000'000), WLib::SPI::Configuration::Mode::Mode_3};
+  constexpr spi_abst::Configuration cfg{spi_abst::Configuration::Clock_Range(123'000'000), spi_abst::Configuration::Mode::Mode_3};
 
   {
     auto&& channel = get_eeprom_1().request_channel(cfg);
